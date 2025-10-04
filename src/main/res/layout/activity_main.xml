@@ -1,0 +1,322 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.drawerlayout.widget.DrawerLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/drawer_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <!-- Main Content -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/gradient_background">
+
+        <!-- Top Bar -->
+        <LinearLayout
+            android:id="@+id/top_bar"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:background="@drawable/gradient_background">
+
+            <ImageView
+                android:id="@+id/menu_icon"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_menu"
+                android:contentDescription="Menu" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" />
+
+        </LinearLayout>
+
+        <!-- ScrollView for content -->
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@id/top_bar"
+            android:fillViewport="true">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <!-- Welcome Section -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="24dp">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Welcome_"
+                            android:textSize="24sp"
+                            android:textColor="#1e3a5f"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/user_name"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="User_name"
+                            android:textSize="24sp"
+                            android:textColor="#1e3a5f"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <ImageView
+                        android:id="@+id/profile_image"
+                        android:layout_width="60dp"
+                        android:layout_height="60dp"
+                        android:src="@drawable/default_profile"
+                        android:scaleType="centerCrop"
+                        android:background="@drawable/circle_background" />
+
+                </LinearLayout>
+
+                <!-- About Pemphigus Section -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="About Pemphigus"
+                    android:textSize="18sp"
+                    android:textColor="@android:color/black"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="8dp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Pemphigus is a group of autoimmune skin disorders that causes blisters and sores on the skin and mucous, such as in the mouth or on the genitals."
+                    android:textSize="14sp"
+                    android:textColor="#666666"
+                    android:lineSpacingExtra="4dp"
+                    android:layout_marginBottom="24dp" />
+
+                <!-- Latest News Section -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Latest News"
+                    android:textSize="18sp"
+                    android:textColor="@android:color/black"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="16dp" />
+
+                <!-- News Card 1 -->
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="2dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Low-Dose Rituximab Shows Promise"
+                            android:textSize="16sp"
+                            android:textColor="@android:color/black"
+                            android:textStyle="bold"
+                            android:layout_marginBottom="8dp" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="The study found that low-dose RTX has comparable clinical efficacy to high-dose RTX therapy, with fewer side effects and lower treatment costs. It can help with skin lesions, pruritus, pemphigoid, OR, and cumulative corticosteroid dose... more"
+                            android:textSize="12sp"
+                            android:textColor="#666666"
+                            android:lineSpacingExtra="2dp"
+                            android:layout_marginBottom="8dp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="2w"
+                            android:textSize="10sp"
+                            android:textColor="#999999"
+                            android:layout_gravity="end" />
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <!-- News Card 2 -->
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="2dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="New Discovery: Pyroptosis Worsens Pemphigus"
+                            android:textSize="16sp"
+                            android:textColor="@android:color/black"
+                            android:textStyle="bold"
+                            android:layout_marginBottom="8dp" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Research from 2025 indicates that keratinocyte pyroptosis in pemphigus is a key process. Targeting inflammatory might worsen acantholysis (like rise of caspase-1/GSDMD) and blistering, which helps lead to skin adhesion in the skin, delaying wound healing... more"
+                            android:textSize="12sp"
+                            android:textColor="#666666"
+                            android:lineSpacingExtra="2dp"
+                            android:layout_marginBottom="8dp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="3w"
+                            android:textSize="10sp"
+                            android:textColor="#999999"
+                            android:layout_gravity="end" />
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <!-- News Card 3 -->
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="2dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Challenges in Diagnosis — New Review"
+                            android:textSize="16sp"
+                            android:textColor="@android:color/black"
+                            android:textStyle="bold"
+                            android:layout_marginBottom="8dp" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Highlights challenges such as differentiating types (pemphigus vs related bullous/mucosal disease), recognizing less common forms (paraneoplastic, medication-linked), and managing oral &amp; mucosal symptoms. Discusses novel approaches to diagnosis via immunofluorescence/serologic testing... more"
+                            android:textSize="12sp"
+                            android:textColor="#666666"
+                            android:lineSpacingExtra="2dp"
+                            android:layout_marginBottom="8dp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="6w"
+                            android:textSize="10sp"
+                            android:textColor="#999999"
+                            android:layout_gravity="end" />
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <!-- News Card 4 -->
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="2dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Long-term Remissions with Rituximab Regimens without Steroids"
+                            android:textSize="16sp"
+                            android:textColor="@android:color/black"
+                            android:textStyle="bold"
+                            android:layout_marginBottom="8dp" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="A study in 42 investigates (2025) showed that using a rituximab regimen (2 g) in some patients yielded remissions lasting >3 years without oral corticosteroid (or minimal... more"
+                            android:textSize="12sp"
+                            android:textColor="#666666"
+                            android:lineSpacingExtra="2dp"
+                            android:layout_marginBottom="8dp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="7w"
+                            android:textSize="10sp"
+                            android:textColor="#999999"
+                            android:layout_gravity="end" />
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <!-- Load More Button -->
+                <TextView
+                    android:id="@+id/load_more_btn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="load more"
+                    android:textSize="14sp"
+                    android:textColor="#1e88e5"
+                    android:layout_gravity="center_horizontal"
+                    android:padding="16dp" />
+
+            </LinearLayout>
+        </ScrollView>
+
+    </RelativeLayout>
+
+    <!-- Side Navigation Drawer -->
+    <com.google.android.material.navigation.NavigationView
+        android:id="@+id/side_navigation"
+        android:layout_width="280dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:background="@drawable/gradient_background"
+        app:headerLayout="@layout/nav_header"
+        app:menu="@menu/drawer_menu"
+        app:itemIconTint="@color/nav_item_color"
+        app:itemTextColor="@color/nav_item_color" />
+
+</androidx.drawerlayout.widget.DrawerLayout>

@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <application
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Patholens"
+        tools:targetApi="31">
+
+        <!-- Activity must be INSIDE the application tag -->
+        <activity
+            android:name=".DisclaimerActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Patholens.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".LoginActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Patholens.NoActionBar"
+            android:parentActivityName=".LoginActivity"/>
+
+        <activity android:name=".RegistrationActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Patholens.NoActionBar"
+            android:parentActivityName=".RegistrationActivity"/>
+
+        <activity android:name=".ForgotPasswordActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Patholens.NoActionBar"
+            android:parentActivityName=".ForgotPasswordActivity"/>
+
+        <activity android:name=".ResetPasswordActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Patholens.NoActionBar"
+            android:parentActivityName=".ResetPasswordActivity"/>
+
+        <activity android:name=".MainActivity"
+            android:exported="false"
+            android:screenOrientation="unspecified"
+            android:theme="@style/Theme.Patholens.NoActionBar"
+            android:parentActivityName=".UserProfileActivity"/>
+
+        <activity
+            android:name=".UserProfileActivity"
+            android:exported="false"
+            android:screenOrientation="unspecified"
+            android:theme="@style/Theme.Patholens.NoActionBar"
+            android:parentActivityName=".UserProfileActivity"/>
+
+        <activity
+            android:name=".EditProfileActivity"
+            android:exported="false"
+            android:screenOrientation="unspecified"
+            android:theme="@style/Theme.Patholens.NoActionBar"
+            android:parentActivityName=".UserProfileActivity"/>
+
+        <activity android:name=".DiagnosisHistoryActivity"
+            android:exported="false"
+            android:screenOrientation="unspecified"
+            android:theme="@style/Theme.Patholens.NoActionBar"
+            android:parentActivityName=".DiagnosisHistoryActivity"/>
+
+        <activity android:name=".DiagnosisReportActivity"
+            android:exported="false"
+            android:screenOrientation="unspecified"
+            android:theme="@style/Theme.Patholens.NoActionBar"
+            android:parentActivityName=".DiagnosisReportActivity"/>
+
+        <activity
+            android:name=".TermsActivity"
+            android:exported="false"
+            android:screenOrientation="unspecified"
+            android:theme="@style/Theme.Patholens.NoActionBar"
+            android:parentActivityName=".UserProfileActivity"/>
+
+        <activity android:name=".PrivacyActivity"
+            android:exported="false"
+            android:screenOrientation="unspecified"
+            android:theme="@style/Theme.Patholens.NoActionBar"
+            android:parentActivityName=".PrivacyActivity"/>
+
+        <activity android:name=".ChangePasswordActivity"
+            android:exported="false"
+            android:screenOrientation="unspecified"
+            android:theme="@style/Theme.Patholens.NoActionBar"
+            android:parentActivityName=".ChangePasswordActivity"/>
+
+
+
+    </application>
+
+</manifest>

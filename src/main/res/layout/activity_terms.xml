@@ -1,0 +1,319 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#FAFAFA">
+
+    <!-- Header -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:background="#FFFFFF"
+        android:elevation="2dp">
+
+        <ImageView
+            android:id="@+id/btnBack"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="4dp"
+            android:src="@drawable/ic_back_black"
+            android:padding="12dp"
+            android:background="?attr/selectableItemBackgroundBorderless"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="Terms and Conditions"
+            android:textSize="18sp"
+            android:textColor="#000000"
+            android:textStyle="bold"/>
+    </RelativeLayout>
+
+    <!-- Content ScrollView -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="16dp"
+        android:scrollbars="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Introduction -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Welcome to patholenS. By using our app, you agree to the following terms and conditions. Please read them carefully."
+                android:textSize="13sp"
+                android:textColor="#424242"
+                android:lineSpacingExtra="2dp"
+                android:layout_marginBottom="16dp"/>
+
+            <!-- Section 1: Service Description -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="1. Service Description"
+                android:textSize="15sp"
+                android:textColor="#000000"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="patholenS is an Android application designed to assist users by analyzing microscopic images to detect the presence of the autoimmune disease Pemphigus. The app uses a trained AI model to estimate the likelihood of the disease."
+                android:textSize="13sp"
+                android:textColor="#424242"
+                android:lineSpacingExtra="2dp"
+                android:layout_marginBottom="16dp"/>
+
+            <!-- Section 2: User Responsibilities -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="2. User Responsibilities"
+                android:textSize="15sp"
+                android:textColor="#000000"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="• Users must provide clear and accurate microscopic images for analysis."
+                android:textSize="13sp"
+                android:textColor="#424242"
+                android:lineSpacingExtra="2dp"
+                android:layout_marginBottom="4dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="• This app is for educational and informational purposes only and is not a substitute for professional medical advice, diagnosis, or treatment."
+                android:textSize="13sp"
+                android:textColor="#424242"
+                android:lineSpacingExtra="2dp"
+                android:layout_marginBottom="4dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="• Users must consult a qualified healthcare professional for any medical concerns or decision related to their health."
+                android:textSize="13sp"
+                android:textColor="#424242"
+                android:lineSpacingExtra="2dp"
+                android:layout_marginBottom="16dp"/>
+
+            <!-- Section 3: Accuracy and Limitations -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="3. Accuracy and Limitations"
+                android:textSize="15sp"
+                android:textColor="#000000"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="• While the AI model has been trained to detect pemphigus with high accuracy, no diagnosis can be 100% accurate. Results provided by the app should be verified by a medical professional."
+                android:textSize="13sp"
+                android:textColor="#424242"
+                android:lineSpacingExtra="2dp"
+                android:layout_marginBottom="4dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="• The App does not guarantee 100% accuracy or validity of findings."
+                android:textSize="13sp"
+                android:textColor="#424242"
+                android:lineSpacingExtra="2dp"
+                android:layout_marginBottom="4dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="• Decisions should not be made based on the App output on the basis for any medical decisions."
+                android:textSize="13sp"
+                android:textColor="#424242"
+                android:lineSpacingExtra="2dp"
+                android:layout_marginBottom="16dp"/>
+
+            <!-- Section 4: Privacy and Data Use -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="4. Privacy and Data Use"
+                android:textSize="15sp"
+                android:textColor="#000000"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="• The images and data you provide will be used solely for the purpose of diagnosis within the App."
+                android:textSize="13sp"
+                android:textColor="#424242"
+                android:lineSpacingExtra="2dp"
+                android:layout_marginBottom="4dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="• We do not share your images or information with third parties without your explicit consent, except as required by law."
+                android:textSize="13sp"
+                android:textColor="#424242"
+                android:lineSpacingExtra="2dp"
+                android:layout_marginBottom="4dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="• Please review our Privacy Policy for detailed information on data collection, use, and protection."
+                android:textSize="13sp"
+                android:textColor="#424242"
+                android:lineSpacingExtra="2dp"
+                android:layout_marginBottom="16dp"/>
+
+            <!-- Section 5: Intellectual Property -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="5. Intellectual Property"
+                android:textSize="15sp"
+                android:textColor="#000000"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="• All content, including the AI model, code, and design, are the intellectual property of patholenS."
+                android:textSize="13sp"
+                android:textColor="#424242"
+                android:lineSpacingExtra="2dp"
+                android:layout_marginBottom="4dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="• Users may not reverse-engineer, replicate, or create derivative works based on the App without prior written permission."
+                android:textSize="13sp"
+                android:textColor="#424242"
+                android:lineSpacingExtra="2dp"
+                android:layout_marginBottom="16dp"/>
+
+            <!-- Section 6: Limitation of Liability -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="6. Limitation of Liability"
+                android:textSize="15sp"
+                android:textColor="#000000"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="• patholenS and its developers are not liable for any damages arising from the use or misuse of the App, including, but not limited to, misdiagnosis or any health-related issues."
+                android:textSize="13sp"
+                android:textColor="#424242"
+                android:lineSpacingExtra="2dp"
+                android:layout_marginBottom="4dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="• By using the App, you acknowledge and accept these risks."
+                android:textSize="13sp"
+                android:textColor="#424242"
+                android:lineSpacingExtra="2dp"
+                android:layout_marginBottom="16dp"/>
+
+            <!-- Section 7: Updates and Changes -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="7. Updates and Changes"
+                android:textSize="15sp"
+                android:textColor="#000000"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="• We may update the App and these Terms and Conditions at any time. Users will be notified of significant changes."
+                android:textSize="13sp"
+                android:textColor="#424242"
+                android:lineSpacingExtra="2dp"
+                android:layout_marginBottom="4dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="• Continued use of the App signifies acceptance of any updates."
+                android:textSize="13sp"
+                android:textColor="#424242"
+                android:lineSpacingExtra="2dp"
+                android:layout_marginBottom="4dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="• We encourage you to review these Terms periodically."
+                android:textSize="13sp"
+                android:textColor="#424242"
+                android:lineSpacingExtra="2dp"
+                android:layout_marginBottom="16dp"/>
+
+            <!-- Section 8: Termination -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="8. Termination"
+                android:textSize="15sp"
+                android:textColor="#000000"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="• We reserve the right to suspend or terminate your access to the app at our discretion, particularly in cases of misuse or violation of these Terms."
+                android:textSize="13sp"
+                android:textColor="#424242"
+                android:lineSpacingExtra="2dp"
+                android:layout_marginBottom="16dp"/>
+
+            <!-- Section 9: Governing Law -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="9. Governing Law"
+                android:textSize="15sp"
+                android:textColor="#000000"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="• These Terms are governed by the laws of India. Any disputes arising from use of the App will be subject to the exclusive jurisdiction of the courts in [Your Location]."
+                android:textSize="13sp"
+                android:textColor="#424242"
+                android:lineSpacingExtra="2dp"
+                android:layout_marginBottom="24dp"/>
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

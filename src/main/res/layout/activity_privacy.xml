@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#F9F9F9">
+
+    <!-- Header -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:background="#FFFFFF"
+        android:elevation="4dp">
+
+        <ImageView
+            android:id="@+id/btnBack"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="8dp"
+            android:src="@drawable/ic_back_black"
+            android:padding="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="Privacy Policy"
+            android:textSize="18sp"
+            android:textColor="#000000"
+            android:textStyle="bold"/>
+    </RelativeLayout>
+
+    <!-- Content ScrollView -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="16dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Introduction -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="PatholenS is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our mobile application for diagnosing the disease Pemphigus.\n\nBy using PatholenS, you agree to the collection and use of information as described in this policy."
+                android:textSize="14sp"
+                android:textColor="#333333"
+                android:lineSpacingExtra="4dp"
+                android:layout_marginBottom="20dp"/>
+
+            <!-- Section 1 -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="1. Information We Collect"
+                android:textSize="16sp"
+                android:textColor="#000000"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="A. Personal Information"
+                android:textSize="14sp"
+                android:textColor="#000000"
+                android:textStyle="bold"
+                android:layout_marginBottom="4dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="We do not require you to create accounts or provide personally identifiable information to use the app. If you contact us, you may voluntarily provide us personal details such as name or contact info for support, bug information will be handled securely."
+                android:textSize="14sp"
+                android:textColor="#333333"
+                android:lineSpacingExtra="4dp"
+                android:layout_marginBottom="12dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="b. Health Data"
+                android:textSize="14sp"
+                android:textColor="#000000"
+                android:textStyle="bold"
+                android:layout_marginBottom="4dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="The core data we collect is the microscopic image you upload for analysis. This image is considered sensitive health-related information."
+                android:textSize="14sp"
+                android:textColor="#333333"
+                android:lineSpacingExtra="4dp"
+                android:layout_marginBottom="12dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="c. Device Information"
+                android:textSize="14sp"
+                android:textColor="#000000"
+                android:textStyle="bold"
+                android:layout_marginBottom="4dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="We may collect technical information about your device such as model, operating system, and app version for diagnostic and improvement purposes."
+                android:textSize="14sp"
+                android:textColor="#333333"
+                android:lineSpacingExtra="4dp"
+                android:layout_marginBottom="20dp"/>
+
+            <!-- Section 2 -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="2. How We Use Your Information"
+                android:textSize="16sp"
+                android:textColor="#000000"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="• To analyze the microscopic images using our AI model to detect signs of Pemphigus.\n• To improve our AI models and app functionality.\n• To provide customer support if you contact us.\n• To comply with legal obligations"
+                android:textSize="14sp"
+                android:textColor="#333333"
+                android:lineSpacingExtra="4dp"
+                android:layout_marginBottom="20dp"/>
+
+            <!-- Section 3 -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="3. Data Storage and Security"
+                android:textSize="16sp"
+                android:textColor="#000000"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="• All uploaded images and data are stored securely with encryption.\n• We do not share your images or data with third parties without your consent.\n• Data will be retained only as long as necessary to fulfill the purposes or comply with legal requirements, plus any additional technical and organizational safeguards to protect your information."
+                android:textSize="14sp"
+                android:textColor="#333333"
+                android:lineSpacingExtra="4dp"
+                android:layout_marginBottom="20dp"/>
+
+            <!-- Section 4 -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="4. Sharing and Disclosure"
+                android:textSize="16sp"
+                android:textColor="#000000"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="We do not sell, trade, or rent your personal or health information.\n\n• Required by law or to comply with legal processes.\n• To protect rights, property, or safety of PatholenS or users."
+                android:textSize="14sp"
+                android:textColor="#333333"
+                android:lineSpacingExtra="4dp"
+                android:layout_marginBottom="20dp"/>
+
+            <!-- Section 5 -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="5. Your Rights"
+                android:textSize="16sp"
+                android:textColor="#000000"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="• You have the right to access, correct, or delete your data.\n• You may withdraw consent for data processing at any time by contacting us."
+                android:textSize="14sp"
+                android:textColor="#333333"
+                android:lineSpacingExtra="4dp"
+                android:layout_marginBottom="20dp"/>
+
+            <!-- Section 6 -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="6. Children's Privacy"
+                android:textSize="16sp"
+                android:textColor="#000000"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="PatholenS is not intended for use by children under 18. We do not knowingly collect data from minors."
+                android:textSize="14sp"
+                android:textColor="#333333"
+                android:lineSpacingExtra="4dp"
+                android:layout_marginBottom="20dp"/>
+
+            <!-- Section 7 -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="7. Changes to This Policy"
+                android:textSize="16sp"
+                android:textColor="#000000"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="We may update this policy from time to time. We will notify users of significant changes via the app or email if applicable."
+                android:textSize="14sp"
+                android:textColor="#333333"
+                android:lineSpacingExtra="4dp"
+                android:layout_marginBottom="32dp"/>
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

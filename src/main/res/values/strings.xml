@@ -1,0 +1,20 @@
+<resources>
+    <string name="app_name">Patholens</string>
+    <string name="disclaimer_title">Disclaimer:</string>
+    <string name="disclaimer_text">This app is not intended to substitute or be a substitute for the expertise and judgement of healthcare professionals. It is meant to enhance and support the diagnosis process.</string>
+    <string name="i_understand">I understand</string>
+    <string name="agree">Agree</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="login">Login</string>
+    <string name="forgot_password">Forgot Password?</string>
+    <string name="dont_have_account">Don\'t have an account?</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="register">Register</string>
+    <string name="already_have_account">Already have an account?</string>
+    <string name="name">Name</string>
+    <string name="age">Age</string>
+    <string name="contact">Contact</string>
+    <string name="gender">Gender</string>
+    <string name="address">Address</string>
+</resources>
