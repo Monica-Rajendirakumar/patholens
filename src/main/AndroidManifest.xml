@@ -2,9 +2,21 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <!-- For Android 13+ (to read images) -->
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+
+    <!-- For Android 12 and below (to read files/images) -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+
+    <!-- To access the device camera -->
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <!-- For API calls, image uploads, or ML models -->
     <uses-permission android:name="android.permission.INTERNET" />
+
+
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
 
     <application
         android:allowBackup="true"
@@ -50,54 +62,75 @@
 
         <activity android:name=".MainActivity"
             android:exported="false"
-            android:screenOrientation="unspecified"
             android:theme="@style/Theme.Patholens.NoActionBar"
             android:parentActivityName=".UserProfileActivity"/>
 
         <activity
             android:name=".UserProfileActivity"
             android:exported="false"
-            android:screenOrientation="unspecified"
             android:theme="@style/Theme.Patholens.NoActionBar"
             android:parentActivityName=".UserProfileActivity"/>
 
         <activity
             android:name=".EditProfileActivity"
             android:exported="false"
-            android:screenOrientation="unspecified"
             android:theme="@style/Theme.Patholens.NoActionBar"
             android:parentActivityName=".UserProfileActivity"/>
 
         <activity android:name=".DiagnosisHistoryActivity"
             android:exported="false"
-            android:screenOrientation="unspecified"
             android:theme="@style/Theme.Patholens.NoActionBar"
             android:parentActivityName=".DiagnosisHistoryActivity"/>
 
         <activity android:name=".DiagnosisReportActivity"
             android:exported="false"
-            android:screenOrientation="unspecified"
             android:theme="@style/Theme.Patholens.NoActionBar"
             android:parentActivityName=".DiagnosisReportActivity"/>
 
         <activity
             android:name=".TermsActivity"
             android:exported="false"
-            android:screenOrientation="unspecified"
             android:theme="@style/Theme.Patholens.NoActionBar"
             android:parentActivityName=".UserProfileActivity"/>
 
         <activity android:name=".PrivacyActivity"
             android:exported="false"
-            android:screenOrientation="unspecified"
             android:theme="@style/Theme.Patholens.NoActionBar"
             android:parentActivityName=".PrivacyActivity"/>
 
         <activity android:name=".ChangePasswordActivity"
             android:exported="false"
-            android:screenOrientation="unspecified"
             android:theme="@style/Theme.Patholens.NoActionBar"
             android:parentActivityName=".ChangePasswordActivity"/>
+
+        <activity android:name=".PatientInformationActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Patholens.NoActionBar"
+            android:parentActivityName=".LoginActivity"/>
+
+        <activity
+            android:name=".QuestionnaireActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Patholens.NoActionBar"
+            android:parentActivityName=".PatientInformationActivity" />
+
+        <activity
+            android:name=".ImageUploadActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Patholens.NoActionBar"
+            android:parentActivityName=".QuestionnaireActivity" />
+
+        <activity
+            android:name=".DiagnosingActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Patholens.NoActionBar"
+            android:parentActivityName=".DiagnosingActivity" />
+
+        <activity
+            android:name=".ResultActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Patholens.NoActionBar"
+            android:parentActivityName=".ResultActivity" />
 
 
 
