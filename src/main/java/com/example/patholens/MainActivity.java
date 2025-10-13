@@ -63,6 +63,15 @@ public class MainActivity extends AppCompatActivity {
                     Intent intent = new Intent(MainActivity.this, DiagnosisHistoryActivity.class);
                     startActivity(intent);
                 }
+                else if (id == R.id.nav_logout) {
+                    // Handle logout
+                    // Clear user session/token here
+                    Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intent);
+                    finish();
+                    Toast.makeText(MainActivity.this, "Logged out successfully", Toast.LENGTH_SHORT).show();
+                }
 
                 drawerLayout.closeDrawer(GravityCompat.START);
                 return true;
