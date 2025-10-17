@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit;
 
 public class RetrofitClient {
 
-    private static final String BASE_URL = "http://10.96.162.19:8000"; // Change this to your Laravel API URL
+    private static final String BASE_URL = "http://10.15.105.19:8000/api/v1/"; // Change this to your Laravel API URL
     // For local development: "http://10.0.2.2:8000/" for emulator or "http://your-local-ip:8000/" for physical device
 
     private static RetrofitClient instance;

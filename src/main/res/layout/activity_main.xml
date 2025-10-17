@@ -8,7 +8,6 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <!-- Main Content -->
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -20,7 +19,7 @@
             android:layout_height="match_parent"
             android:background="#F5F5F5">
 
-            <!-- Animated Floating Orb 1 -->
+            <!-- Animated Floating Orbs (keep as is) -->
             <View
                 android:id="@+id/floating_orb_1"
                 android:layout_width="200dp"
@@ -31,7 +30,6 @@
                 android:background="@drawable/gradient_orb_primary"
                 android:alpha="0.6" />
 
-            <!-- Animated Floating Orb 2 -->
             <View
                 android:id="@+id/floating_orb_2"
                 android:layout_width="150dp"
@@ -41,7 +39,6 @@
                 android:background="@drawable/gradient_orb_secondary"
                 android:alpha="0.5" />
 
-            <!-- Animated Floating Orb 3 -->
             <View
                 android:id="@+id/floating_orb_3"
                 android:layout_width="120dp"
@@ -57,7 +54,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <!-- Minimalist Top Bar -->
+            <!-- Top Bar (keep as is) -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/top_bar"
                 android:layout_width="match_parent"
@@ -75,7 +72,6 @@
                     android:paddingStart="16dp"
                     android:paddingEnd="16dp">
 
-                    <!-- Menu Button -->
                     <ImageView
                         android:id="@+id/menu_icon"
                         android:layout_width="40dp"
@@ -90,7 +86,6 @@
                         android:layout_height="1dp"
                         android:layout_weight="1" />
 
-                    <!-- App Title -->
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -105,7 +100,6 @@
                         android:layout_height="1dp"
                         android:layout_weight="1" />
 
-                    <!-- Profile Avatar -->
                     <androidx.cardview.widget.CardView
                         android:layout_width="40dp"
                         android:layout_height="40dp"
@@ -142,6 +136,7 @@
 
                     <!-- Welcome Section -->
                     <TextView
+                        android:id="@+id/tv_welcome"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Welcome Back"
@@ -159,7 +154,7 @@
                         android:fontFamily="sans-serif-medium"
                         android:layout_marginBottom="24dp" />
 
-                    <!-- About Card -->
+                    <!-- About Card (keep as is) -->
                     <androidx.cardview.widget.CardView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -211,6 +206,7 @@
                             android:fontFamily="sans-serif-medium" />
 
                         <TextView
+                            android:id="@+id/view_all_news"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="View All"
@@ -219,221 +215,13 @@
                             android:fontFamily="sans-serif-medium" />
                     </LinearLayout>
 
-                    <!-- News Card 1 -->
-                    <androidx.cardview.widget.CardView
-                        android:id="@+id/news_card_1"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="12dp"
-                        android:foreground="?android:attr/selectableItemBackground"
-                        app:cardBackgroundColor="#FFFFFF"
-                        app:cardCornerRadius="16dp"
-                        app:cardElevation="2dp">
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="vertical"
-                            android:padding="20dp">
-
-                            <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginBottom="12dp"
-                                android:gravity="center_vertical"
-                                android:orientation="horizontal">
-
-                                <TextView
-                                    android:layout_width="0dp"
-                                    android:layout_height="wrap_content"
-                                    android:layout_weight="1"
-                                    android:text="Low-Dose Rituximab Shows Promise"
-                                    android:textColor="#212121"
-                                    android:textSize="16sp"
-                                    android:fontFamily="sans-serif-medium" />
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="2w"
-                                    android:textColor="#757575"
-                                    android:textSize="12sp"
-                                    android:layout_marginStart="12dp" />
-                            </LinearLayout>
-
-                            <TextView
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:lineSpacingExtra="4dp"
-                                android:text="Study found that low-dose RTX has comparable clinical efficacy to high-dose therapy, with fewer side effects and lower costs."
-                                android:textColor="#757575"
-                                android:textSize="14sp"
-                                android:maxLines="3"
-                                android:ellipsize="end" />
-                        </LinearLayout>
-                    </androidx.cardview.widget.CardView>
-
-                    <!-- News Card 2 -->
-                    <androidx.cardview.widget.CardView
-                        android:id="@+id/news_card_2"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="12dp"
-                        android:foreground="?android:attr/selectableItemBackground"
-                        app:cardBackgroundColor="#FFFFFF"
-                        app:cardCornerRadius="16dp"
-                        app:cardElevation="2dp">
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="vertical"
-                            android:padding="20dp">
-
-                            <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginBottom="12dp"
-                                android:gravity="center_vertical"
-                                android:orientation="horizontal">
-
-                                <TextView
-                                    android:layout_width="0dp"
-                                    android:layout_height="wrap_content"
-                                    android:layout_weight="1"
-                                    android:text="Pyroptosis Discovery in Pemphigus"
-                                    android:textColor="#212121"
-                                    android:textSize="16sp"
-                                    android:fontFamily="sans-serif-medium" />
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="3w"
-                                    android:textColor="#757575"
-                                    android:textSize="12sp"
-                                    android:layout_marginStart="12dp" />
-                            </LinearLayout>
-
-                            <TextView
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:lineSpacingExtra="4dp"
-                                android:text="Research indicates keratinocyte pyroptosis is key. Targeting inflammatory pathways might reduce acantholysis and blistering."
-                                android:textColor="#757575"
-                                android:textSize="14sp"
-                                android:maxLines="3"
-                                android:ellipsize="end" />
-                        </LinearLayout>
-                    </androidx.cardview.widget.CardView>
-
-                    <!-- News Card 3 -->
-                    <androidx.cardview.widget.CardView
-                        android:id="@+id/news_card_3"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="12dp"
-                        android:foreground="?android:attr/selectableItemBackground"
-                        app:cardBackgroundColor="#FFFFFF"
-                        app:cardCornerRadius="16dp"
-                        app:cardElevation="2dp">
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="vertical"
-                            android:padding="20dp">
-
-                            <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginBottom="12dp"
-                                android:gravity="center_vertical"
-                                android:orientation="horizontal">
-
-                                <TextView
-                                    android:layout_width="0dp"
-                                    android:layout_height="wrap_content"
-                                    android:layout_weight="1"
-                                    android:text="Challenges in Diagnosis — Review"
-                                    android:textColor="#212121"
-                                    android:textSize="16sp"
-                                    android:fontFamily="sans-serif-medium" />
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="6w"
-                                    android:textColor="#757575"
-                                    android:textSize="12sp"
-                                    android:layout_marginStart="12dp" />
-                            </LinearLayout>
-
-                            <TextView
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:lineSpacingExtra="4dp"
-                                android:text="Highlights challenges in differentiating types and recognizing less common forms. Discusses novel diagnostic approaches."
-                                android:textColor="#757575"
-                                android:textSize="14sp"
-                                android:maxLines="3"
-                                android:ellipsize="end" />
-                        </LinearLayout>
-                    </androidx.cardview.widget.CardView>
-
-                    <!-- News Card 4 -->
-                    <androidx.cardview.widget.CardView
-                        android:id="@+id/news_card_4"
+                    <!-- ✅ REPLACE ALL NEWS CARDS WITH RECYCLERVIEW -->
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/news_recycler_view"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="16dp"
-                        android:foreground="?android:attr/selectableItemBackground"
-                        app:cardBackgroundColor="#FFFFFF"
-                        app:cardCornerRadius="16dp"
-                        app:cardElevation="2dp">
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="vertical"
-                            android:padding="20dp">
-
-                            <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginBottom="12dp"
-                                android:gravity="center_vertical"
-                                android:orientation="horizontal">
-
-                                <TextView
-                                    android:layout_width="0dp"
-                                    android:layout_height="wrap_content"
-                                    android:layout_weight="1"
-                                    android:text="Long-term Remissions with Rituximab"
-                                    android:textColor="#212121"
-                                    android:textSize="16sp"
-                                    android:fontFamily="sans-serif-medium" />
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="7w"
-                                    android:textColor="#757575"
-                                    android:textSize="12sp"
-                                    android:layout_marginStart="12dp" />
-                            </LinearLayout>
-
-                            <TextView
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:lineSpacingExtra="4dp"
-                                android:text="Study with 42 participants showed rituximab regimen yielded remissions lasting >3 years with minimal steroid use."
-                                android:textColor="#757575"
-                                android:textSize="14sp"
-                                android:maxLines="3"
-                                android:ellipsize="end" />
-                        </LinearLayout>
-                    </androidx.cardview.widget.CardView>
+                        android:nestedScrollingEnabled="false" />
 
                     <!-- Load More Button -->
                     <androidx.cardview.widget.CardView

@@ -33,7 +33,7 @@
 
         <!-- Activity must be INSIDE the application tag -->
         <activity
-            android:name=".DisclaimerActivity"
+            android:name=".LoginActivity"
             android:exported="true"
             android:theme="@style/Theme.Patholens.NoActionBar">
             <intent-filter>
@@ -41,11 +41,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <activity android:name=".LoginActivity"
-            android:exported="false"
-            android:theme="@style/Theme.Patholens.NoActionBar"
-            android:parentActivityName=".LoginActivity"/>
 
         <activity android:name=".RegistrationActivity"
             android:exported="false"

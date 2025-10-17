@@ -38,9 +38,33 @@ public class PrefsManager {
         saveLoginData(token, userId, userName, userEmail);
     }
 
+    // Save complete user profile data
+    public void saveUserProfile(String name, String email, int age, String gender, String phoneNumber) {
+        editor.putString(KEY_USER_NAME, name);
+        editor.putString(KEY_USER_EMAIL, email);
+        editor.putInt(KEY_USER_AGE, age);
+        editor.putString(KEY_USER_GENDER, gender);
+        editor.putString(KEY_USER_PHONE, phoneNumber);
+        editor.apply();
+    }
+
     // Get token
     public String getToken() {
         return prefs.getString(KEY_TOKEN, null);
+    }
+
+    // Add this method to check if user just registered
+    public void setNewUser(boolean isNew) {
+        prefs.edit().putBoolean("is_new_user", isNew).apply();
+    }
+
+    public boolean isNewUser() {
+        boolean isNew = prefs.getBoolean("is_new_user", false);
+        // Clear the flag after reading it once
+        if (isNew) {
+            prefs.edit().putBoolean("is_new_user", false).apply();
+        }
+        return isNew;
     }
 
     // Get user ID
@@ -58,6 +82,21 @@ public class PrefsManager {
         return prefs.getString(KEY_USER_EMAIL, null);
     }
 
+    // Get user age
+    public int getUserAge() {
+        return prefs.getInt(KEY_USER_AGE, 0);
+    }
+
+    // Get user gender
+    public String getUserGender() {
+        return prefs.getString(KEY_USER_GENDER, null);
+    }
+
+    // Get user phone
+    public String getUserPhone() {
+        return prefs.getString(KEY_USER_PHONE, null);
+    }
+
     // Check if user is logged in
     public boolean isLoggedIn() {
         return prefs.getBoolean(KEY_IS_LOGGED_IN, false);
@@ -69,6 +108,9 @@ public class PrefsManager {
         editor.apply();
     }
 
+    public void clearAll() {
+        prefs.edit().clear().apply();
+    }
     // Alias for clearSession (for compatibility)
     public void clearData() {
         clearSession();
@@ -79,4 +121,5 @@ public class PrefsManager {
         String token = getToken();
         return token != null ? "Bearer " + token : null;
     }
+
 }

@@ -7,163 +7,208 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.content.Intent;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import com.example.patholens.adapters.NewsAdapter;
+import com.example.patholens.api.RetrofitClient;
+import com.example.patholens.modules.NewsResponse;
+import com.example.patholens.modules.UserResponse;
+import com.example.patholens.utils.PrefsManager;
 import com.google.android.material.navigation.NavigationView;
+import java.util.List;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
 
     private DrawerLayout drawerLayout;
     private ImageView menuIcon;
     private NavigationView sideNavigation;
+    private TextView tvWelcome, tvUserName;
+    private RecyclerView newsRecyclerView;
+    private NewsAdapter newsAdapter;
 
-    private View floatingOrb1;
-    private View floatingOrb2;
-    private View floatingOrb3;
+    private View floatingOrb1, floatingOrb2, floatingOrb3;
+    private PrefsManager prefsManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        prefsManager = new PrefsManager(this);
+
+        initializeViews();
+        setupWelcomeMessage();
+        setupRecyclerView();
+        fetchUserProfile();
+        fetchNews();
+        startBackgroundAnimations();
+        setupNavigationDrawer();
+    }
+
+    private void initializeViews() {
         drawerLayout = findViewById(R.id.drawer_layout);
         menuIcon = findViewById(R.id.menu_icon);
         sideNavigation = findViewById(R.id.side_navigation);
+
+        tvWelcome = findViewById(R.id.tv_welcome);
+        tvUserName = findViewById(R.id.user_name);
+        newsRecyclerView = findViewById(R.id.news_recycler_view);
 
         floatingOrb1 = findViewById(R.id.floating_orb_1);
         floatingOrb2 = findViewById(R.id.floating_orb_2);
         floatingOrb3 = findViewById(R.id.floating_orb_3);
 
-        startBackgroundAnimations();
+        menuIcon.setOnClickListener(v -> drawerLayout.openDrawer(GravityCompat.START));
+    }
 
-        menuIcon.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                drawerLayout.openDrawer(GravityCompat.START);
+    private void setupWelcomeMessage() {
+        boolean isNewUser = prefsManager.isNewUser();
+        tvWelcome.setText(isNewUser ? "Welcome" : "Welcome Back");
+    }
+
+    private void setupRecyclerView() {
+        newsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        newsRecyclerView.setHasFixedSize(true);
+    }
+
+    private void fetchUserProfile() {
+        String token = prefsManager.getBearerToken();
+
+        if (token == null) {
+            tvUserName.setText("Guest");
+            return;
+        }
+
+        RetrofitClient.getInstance().getApiService()
+                .getAuthenticatedUser(token)
+                .enqueue(new Callback<UserResponse>() {
+                    @Override
+                    public void onResponse(Call<UserResponse> call, Response<UserResponse> response) {
+                        if (response.isSuccessful() && response.body() != null) {
+                            UserResponse userResponse = response.body();
+                            if (userResponse.isStatus() && userResponse.getData() != null) {
+                                String name = userResponse.getData().getName();
+                                tvUserName.setText(name != null ? name : "User");
+
+                                prefsManager.saveUserProfile(
+                                        userResponse.getData().getName(),
+                                        userResponse.getData().getEmail(),
+                                        userResponse.getData().getAge(),
+                                        userResponse.getData().getGender(),
+                                        userResponse.getData().getPhoneNumber()
+                                );
+                            }
+                        } else {
+                            String savedName = prefsManager.getUserName();
+                            tvUserName.setText(savedName != null ? savedName : "User");
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<UserResponse> call, Throwable t) {
+                        String savedName = prefsManager.getUserName();
+                        tvUserName.setText(savedName != null ? savedName : "User");
+                    }
+                });
+    }
+
+    private void fetchNews() {
+        RetrofitClient.getInstance().getApiService()
+                .getNews()
+                .enqueue(new Callback<NewsResponse>() {
+                    @Override
+                    public void onResponse(Call<NewsResponse> call, Response<NewsResponse> response) {
+                        if (response.isSuccessful() && response.body() != null) {
+                            List<NewsResponse.NewsArticle> articles = response.body().getResults();
+                            if (articles != null && !articles.isEmpty()) {
+                                newsAdapter = new NewsAdapter(MainActivity.this, articles);
+                                newsRecyclerView.setAdapter(newsAdapter);
+                            } else {
+                                Toast.makeText(MainActivity.this,
+                                        "No news available", Toast.LENGTH_SHORT).show();
+                            }
+                        } else {
+                            Toast.makeText(MainActivity.this,
+                                    "Failed to load news", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<NewsResponse> call, Throwable t) {
+                        Toast.makeText(MainActivity.this,
+                                "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    private void setupNavigationDrawer() {
+        sideNavigation.setNavigationItemSelectedListener(item -> {
+            int id = item.getItemId();
+
+            if (id == R.id.nav_profile) {
+                startActivity(new Intent(MainActivity.this, UserProfileActivity.class));
+            } else if (id == R.id.nav_diagnosis) {
+                startActivity(new Intent(MainActivity.this, PatientInformationActivity.class));
+            } else if (id == R.id.nav_history) {
+                startActivity(new Intent(MainActivity.this, DiagnosisHistoryActivity.class));
+            } else if (id == R.id.nav_logout) {
+                prefsManager.clearAll();
+                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+                finish();
+                Toast.makeText(MainActivity.this, "Logged out successfully", Toast.LENGTH_SHORT).show();
             }
-        });
 
-        sideNavigation.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(MenuItem item) {
-                int id = item.getItemId();
-
-                if (id == R.id.nav_profile) {
-                    Intent intent = new Intent(MainActivity.this, UserProfileActivity.class);
-                    startActivity(intent);
-
-                } else if (id == R.id.nav_diagnosis) {
-                    Intent intent = new Intent(MainActivity.this, PatientInformationActivity.class);
-                    startActivity(intent);
-
-                } else if (id == R.id.nav_history) {
-                    Intent intent = new Intent(MainActivity.this, DiagnosisHistoryActivity.class);
-                    startActivity(intent);
-                }
-                else if (id == R.id.nav_logout) {
-                    // Handle logout
-                    // Clear user session/token here
-                    Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                    startActivity(intent);
-                    finish();
-                    Toast.makeText(MainActivity.this, "Logged out successfully", Toast.LENGTH_SHORT).show();
-                }
-
-                drawerLayout.closeDrawer(GravityCompat.START);
-                return true;
-            }
+            drawerLayout.closeDrawer(GravityCompat.START);
+            return true;
         });
     }
 
     private void startBackgroundAnimations() {
-        // Animate Floating Orb 1 - Slow vertical and horizontal float
-        ObjectAnimator orb1TranslateY = ObjectAnimator.ofFloat(floatingOrb1, "translationY", 0f, 150f);
-        orb1TranslateY.setDuration(12000);
-        orb1TranslateY.setRepeatCount(ValueAnimator.INFINITE);
-        orb1TranslateY.setRepeatMode(ValueAnimator.REVERSE);
-        orb1TranslateY.setInterpolator(new AccelerateDecelerateInterpolator());
-        orb1TranslateY.start();
+        animateOrb(floatingOrb1, 150f, 80f, 12000, 15000, 8000);
+        animateOrb(floatingOrb2, -100f, -60f, 10000, 13000, 9000);
+        animateOrb(floatingOrb3, 120f, -90f, 14000, 11000, 10000);
+    }
 
-        ObjectAnimator orb1TranslateX = ObjectAnimator.ofFloat(floatingOrb1, "translationX", 0f, 80f);
-        orb1TranslateX.setDuration(15000);
-        orb1TranslateX.setRepeatCount(ValueAnimator.INFINITE);
-        orb1TranslateX.setRepeatMode(ValueAnimator.REVERSE);
-        orb1TranslateX.setInterpolator(new AccelerateDecelerateInterpolator());
-        orb1TranslateX.start();
+    private void animateOrb(View orb, float translateY, float translateX,
+                            long durationY, long durationX, long scaleDuration) {
+        ObjectAnimator translateYAnim = ObjectAnimator.ofFloat(orb, "translationY", 0f, translateY);
+        translateYAnim.setDuration(durationY);
+        translateYAnim.setRepeatCount(ValueAnimator.INFINITE);
+        translateYAnim.setRepeatMode(ValueAnimator.REVERSE);
+        translateYAnim.setInterpolator(new AccelerateDecelerateInterpolator());
+        translateYAnim.start();
 
-        ObjectAnimator orb2TranslateY = ObjectAnimator.ofFloat(floatingOrb2, "translationY", 0f, -100f);
-        orb2TranslateY.setDuration(10000);
-        orb2TranslateY.setRepeatCount(ValueAnimator.INFINITE);
-        orb2TranslateY.setRepeatMode(ValueAnimator.REVERSE);
-        orb2TranslateY.setInterpolator(new AccelerateDecelerateInterpolator());
-        orb2TranslateY.start();
+        ObjectAnimator translateXAnim = ObjectAnimator.ofFloat(orb, "translationX", 0f, translateX);
+        translateXAnim.setDuration(durationX);
+        translateXAnim.setRepeatCount(ValueAnimator.INFINITE);
+        translateXAnim.setRepeatMode(ValueAnimator.REVERSE);
+        translateXAnim.setInterpolator(new AccelerateDecelerateInterpolator());
+        translateXAnim.start();
 
-        ObjectAnimator orb2TranslateX = ObjectAnimator.ofFloat(floatingOrb2, "translationX", 0f, -60f);
-        orb2TranslateX.setDuration(13000);
-        orb2TranslateX.setRepeatCount(ValueAnimator.INFINITE);
-        orb2TranslateX.setRepeatMode(ValueAnimator.REVERSE);
-        orb2TranslateX.setInterpolator(new AccelerateDecelerateInterpolator());
-        orb2TranslateX.start();
+        ObjectAnimator scaleX = ObjectAnimator.ofFloat(orb, "scaleX", 1f, 1.2f);
+        scaleX.setDuration(scaleDuration);
+        scaleX.setRepeatCount(ValueAnimator.INFINITE);
+        scaleX.setRepeatMode(ValueAnimator.REVERSE);
+        scaleX.setInterpolator(new AccelerateDecelerateInterpolator());
+        scaleX.start();
 
-        ObjectAnimator orb3TranslateY = ObjectAnimator.ofFloat(floatingOrb3, "translationY", 0f, 120f);
-        orb3TranslateY.setDuration(14000);
-        orb3TranslateY.setRepeatCount(ValueAnimator.INFINITE);
-        orb3TranslateY.setRepeatMode(ValueAnimator.REVERSE);
-        orb3TranslateY.setInterpolator(new AccelerateDecelerateInterpolator());
-        orb3TranslateY.start();
-
-        ObjectAnimator orb3TranslateX = ObjectAnimator.ofFloat(floatingOrb3, "translationX", 0f, -90f);
-        orb3TranslateX.setDuration(11000);
-        orb3TranslateX.setRepeatCount(ValueAnimator.INFINITE);
-        orb3TranslateX.setRepeatMode(ValueAnimator.REVERSE);
-        orb3TranslateX.setInterpolator(new AccelerateDecelerateInterpolator());
-        orb3TranslateX.start();
-
-        ObjectAnimator orb1Scale = ObjectAnimator.ofFloat(floatingOrb1, "scaleX", 1f, 1.2f);
-        orb1Scale.setDuration(8000);
-        orb1Scale.setRepeatCount(ValueAnimator.INFINITE);
-        orb1Scale.setRepeatMode(ValueAnimator.REVERSE);
-        orb1Scale.setInterpolator(new AccelerateDecelerateInterpolator());
-        orb1Scale.start();
-
-        ObjectAnimator orb1ScaleY = ObjectAnimator.ofFloat(floatingOrb1, "scaleY", 1f, 1.2f);
-        orb1ScaleY.setDuration(8000);
-        orb1ScaleY.setRepeatCount(ValueAnimator.INFINITE);
-        orb1ScaleY.setRepeatMode(ValueAnimator.REVERSE);
-        orb1ScaleY.setInterpolator(new AccelerateDecelerateInterpolator());
-        orb1ScaleY.start();
-
-        ObjectAnimator orb2Scale = ObjectAnimator.ofFloat(floatingOrb2, "scaleX", 1f, 1.15f);
-        orb2Scale.setDuration(9000);
-        orb2Scale.setRepeatCount(ValueAnimator.INFINITE);
-        orb2Scale.setRepeatMode(ValueAnimator.REVERSE);
-        orb2Scale.setInterpolator(new AccelerateDecelerateInterpolator());
-        orb2Scale.start();
-
-        ObjectAnimator orb2ScaleY = ObjectAnimator.ofFloat(floatingOrb2, "scaleY", 1f, 1.15f);
-        orb2ScaleY.setDuration(9000);
-        orb2ScaleY.setRepeatCount(ValueAnimator.INFINITE);
-        orb2ScaleY.setRepeatMode(ValueAnimator.REVERSE);
-        orb2ScaleY.setInterpolator(new AccelerateDecelerateInterpolator());
-        orb2ScaleY.start();
-
-        ObjectAnimator orb3Scale = ObjectAnimator.ofFloat(floatingOrb3, "scaleX", 1f, 1.25f);
-        orb3Scale.setDuration(10000);
-        orb3Scale.setRepeatCount(ValueAnimator.INFINITE);
-        orb3Scale.setRepeatMode(ValueAnimator.REVERSE);
-        orb3Scale.setInterpolator(new AccelerateDecelerateInterpolator());
-        orb3Scale.start();
-
-        ObjectAnimator orb3ScaleY = ObjectAnimator.ofFloat(floatingOrb3, "scaleY", 1f, 1.25f);
-        orb3ScaleY.setDuration(10000);
-        orb3ScaleY.setRepeatCount(ValueAnimator.INFINITE);
-        orb3ScaleY.setRepeatMode(ValueAnimator.REVERSE);
-        orb3ScaleY.setInterpolator(new AccelerateDecelerateInterpolator());
-        orb3ScaleY.start();
+        ObjectAnimator scaleY = ObjectAnimator.ofFloat(orb, "scaleY", 1f, 1.2f);
+        scaleY.setDuration(scaleDuration);
+        scaleY.setRepeatCount(ValueAnimator.INFINITE);
+        scaleY.setRepeatMode(ValueAnimator.REVERSE);
+        scaleY.setInterpolator(new AccelerateDecelerateInterpolator());
+        scaleY.start();
     }
 
     @Override
@@ -173,5 +218,11 @@ public class MainActivity extends AppCompatActivity {
         } else {
             super.onBackPressed();
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        fetchUserProfile();
     }
 }

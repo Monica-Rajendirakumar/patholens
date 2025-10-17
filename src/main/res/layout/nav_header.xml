@@ -13,10 +13,12 @@
         android:background="@drawable/gradient_orb_primary">
 
         <ImageView
+            android:id="@+id/nav_profile_image"
             android:layout_width="80dp"
             android:layout_height="80dp"
             android:src="@drawable/default_profile"
-            android:background="@drawable/circle_background" />
+            android:background="@drawable/circle_background"
+            android:scaleType="centerCrop" />
 
         <TextView
             android:id="@+id/nav_user_name"

@@ -339,6 +339,8 @@ public class RegistrationActivity extends AppCompatActivity {
     private void navigateToMain() {
         Intent intent = new Intent(RegistrationActivity.this, MainActivity.class);
         startActivity(intent);
+        // After successful registration, mark as new user
+        prefsManager.setNewUser(true);
         finish(); // Close registration activity
     }
 }
