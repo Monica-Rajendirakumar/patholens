@@ -19,6 +19,15 @@ import androidx.core.content.ContextCompat;
 
 public class ImageUploadActivity extends AppCompatActivity {
 
+    // Patient information from PatientInformationActivity (passed through)
+    private String userId;
+    private boolean isForMe;
+    private String patientName;
+    private String patientAge;
+    private String patientPhone;
+    private String patientGender;
+
+    // Image upload components
     private ImageView ivPreview;
     private Button btnSelectImage, btnSubmit;
     private Uri imageUri;
@@ -33,10 +42,28 @@ public class ImageUploadActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_image_upload);
 
+        // Receive patient information from QuestionnaireActivity
+        receivePatientInformation();
+
         initializeViews();
         initializeLaunchers();
         showImportantAlert();
         setupListeners();
+    }
+
+    /**
+     * Receive patient information passed from QuestionnaireActivity
+     */
+    private void receivePatientInformation() {
+        Intent intent = getIntent();
+
+        // Patient information only
+        userId = intent.getStringExtra("user_id");
+        isForMe = intent.getBooleanExtra("isForMe", true);
+        patientName = intent.getStringExtra("patientName");
+        patientAge = intent.getStringExtra("patientAge");
+        patientPhone = intent.getStringExtra("patientPhone");
+        patientGender = intent.getStringExtra("patientGender");
     }
 
     private void initializeViews() {
@@ -136,21 +163,29 @@ public class ImageUploadActivity extends AppCompatActivity {
                 .setMessage("Are you sure this is a microscopic image of Pemphigus disease?\n\n" +
                         "Submitting incorrect images may result in rejection.")
                 .setPositiveButton("Yes, Submit", (dialog, which) -> {
-                    // Redirect directly to DiagnosingActivity
-                    Intent intent = new Intent(ImageUploadActivity.this, DiagnosingActivity.class);
-                    intent.putExtra("imageUri", imageUri.toString());
-                    startActivity(intent);
-                    finish();
+                    navigateToDiagnosing();
                 })
                 .setNegativeButton("Cancel", null)
                 .show();
     }
 
-    private void submitData() {
-        // This method can be used later when you connect to backend
-        // For now, just redirect to DiagnosingActivity
+    /**
+     * Pass patient information and image to DiagnosingActivity
+     */
+    private void navigateToDiagnosing() {
         Intent intent = new Intent(ImageUploadActivity.this, DiagnosingActivity.class);
+
+        // ✅ Pass through patient information unchanged
+        intent.putExtra("user_id", userId);
+        intent.putExtra("isForMe", isForMe);
+        intent.putExtra("patientName", patientName);
+        intent.putExtra("patientAge", patientAge);
+        intent.putExtra("patientPhone", patientPhone);
+        intent.putExtra("patientGender", patientGender);
+
+        // ✅ Add the uploaded image URI
         intent.putExtra("imageUri", imageUri.toString());
+
         startActivity(intent);
         finish();
     }

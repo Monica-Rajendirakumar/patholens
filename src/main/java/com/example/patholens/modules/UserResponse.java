@@ -33,7 +33,7 @@ public class UserResponse {
 
     public static class UserData {
         @SerializedName("id")
-        private int id;
+        private Integer id;  // ✅ Changed from int to Integer
 
         @SerializedName("name")
         private String name;
@@ -42,7 +42,7 @@ public class UserResponse {
         private String email;
 
         @SerializedName("age")
-        private int age;
+        private Integer age;  // ✅ Changed from int to Integer
 
         @SerializedName("gender")
         private String gender;
@@ -50,7 +50,7 @@ public class UserResponse {
         @SerializedName("phone_number")
         private String phoneNumber;
 
-        public int getId() {
+        public Integer getId() {  // ✅ Changed return type
             return id;
         }
 
@@ -62,7 +62,7 @@ public class UserResponse {
             return email;
         }
 
-        public int getAge() {
+        public Integer getAge() {  // ✅ Changed return type
             return age;
         }
 

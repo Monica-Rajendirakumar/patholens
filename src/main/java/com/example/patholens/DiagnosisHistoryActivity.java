@@ -2,24 +2,42 @@ package com.example.patholens;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.widget.NestedScrollView;
 
-import java.util.ArrayList;
+import com.example.patholens.api.RetrofitClient;
+import com.example.patholens.modules.Patient;
+import com.example.patholens.modules.PatientResponse;
+import com.example.patholens.utils.PrefsManager;
+
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class DiagnosisHistoryActivity extends AppCompatActivity {
 
-    private ImageView btnBack;
-    private LinearLayout btnReport1, btnReport2, btnReport3, btnReport4;
-    private LinearLayout diagnosisContainer;
+    private static final String TAG = "DiagnosisHistory";
 
-    // List to store diagnosis data
-    private List<DiagnosisRecord> diagnosisRecords;
+    private ImageView btnBack;
+    private LinearLayout diagnosisContainer;
+    private ProgressBar progressBar;
+    private TextView tvEmptyState;
+    private NestedScrollView scrollView;
+
+    private PrefsManager prefsManager;
+    private List<Patient> patientList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,122 +45,167 @@ public class DiagnosisHistoryActivity extends AppCompatActivity {
         setContentView(R.layout.activity_diagnosis_history);
 
         initializeViews();
-        loadDiagnosisData();
+        prefsManager = new PrefsManager(this);
         setupClickListeners();
+        loadDiagnosisHistory();
     }
 
     private void initializeViews() {
         btnBack = findViewById(R.id.btnBack);
-        btnReport1 = findViewById(R.id.btnReport1);
-        btnReport2 = findViewById(R.id.btnReport2);
-        btnReport3 = findViewById(R.id.btnReport3);
-        btnReport4 = findViewById(R.id.btnReport4);
         diagnosisContainer = findViewById(R.id.diagnosisContainer);
-    }
+        scrollView = findViewById(R.id.scrollView);
+        progressBar = findViewById(R.id.progressBar);
+        tvEmptyState = findViewById(R.id.tvEmptyState);
 
-    private void loadDiagnosisData() {
-        // Initialize diagnosis records
-        diagnosisRecords = new ArrayList<>();
-
-        // Sample data - Replace with database or API data
-        diagnosisRecords.add(new DiagnosisRecord(
-                "Diagnoses 4", "abc", 20, true, "14/06/25", 92, "male"
-        ));
-        diagnosisRecords.add(new DiagnosisRecord(
-                "Diagnoses 3", "pqr", 34, true, "10/06/25", 93, "male"
-        ));
-        diagnosisRecords.add(new DiagnosisRecord(
-                "Diagnoses 2", "xyz", 24, false, "08/06/25", 94, "female"
-        ));
-        diagnosisRecords.add(new DiagnosisRecord(
-                "Diagnoses 1", "hjg", 23, false, "27/05/25", 93, "male"
-        ));
+        // Set gravity correctly
+        tvEmptyState.setGravity(Gravity.CENTER);
     }
 
     private void setupClickListeners() {
-        btnBack.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
-
-        // Report button listeners
-        btnReport1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openReport(diagnosisRecords.get(0));
-            }
-        });
-
-        btnReport2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openReport(diagnosisRecords.get(1));
-            }
-        });
-
-        btnReport3.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openReport(diagnosisRecords.get(2));
-            }
-        });
-
-        btnReport4.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openReport(diagnosisRecords.get(3));
-            }
-        });
+        btnBack.setOnClickListener(v -> finish());
     }
 
-    private void openReport(DiagnosisRecord record) {
-        // Open detailed report activity
+    private void loadDiagnosisHistory() {
+        showLoading(true);
+
+        String userId = String.valueOf(prefsManager.getUserId());
+        String token = prefsManager.getBearerToken();
+
+        if (token == null) {
+            Toast.makeText(this, "Please login again", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
+
+        Log.d(TAG, "Fetching history for user ID: " + userId);
+
+        RetrofitClient.getInstance()
+                .getApiService()
+                .getUserPatientHistory(userId, token)
+                .enqueue(new Callback<PatientResponse>() {
+                    @Override
+                    public void onResponse(Call<PatientResponse> call, Response<PatientResponse> response) {
+                        showLoading(false);
+
+                        if (response.isSuccessful() && response.body() != null) {
+                            PatientResponse patientResponse = response.body();
+
+                            if ("success".equalsIgnoreCase(patientResponse.getStatus())) {
+                                // Get the list directly from data
+                                patientList = patientResponse.getData();
+
+                                if (patientList != null && !patientList.isEmpty()) {
+                                    Log.d(TAG, "Loaded " + patientList.size() + " patient records");
+                                    displayDiagnosisHistory();
+                                } else {
+                                    Log.d(TAG, "No patient records found");
+                                    showEmptyState();
+                                }
+                            } else {
+                                String errorMsg = patientResponse.getMessage() != null ?
+                                        patientResponse.getMessage() : "Failed to load history";
+                                Toast.makeText(DiagnosisHistoryActivity.this,
+                                        errorMsg, Toast.LENGTH_SHORT).show();
+                                showEmptyState();
+                            }
+                        } else {
+                            Log.e(TAG, "Response failed: " + response.code());
+                            Toast.makeText(DiagnosisHistoryActivity.this,
+                                    "Failed to load history", Toast.LENGTH_SHORT).show();
+                            showEmptyState();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<PatientResponse> call, Throwable t) {
+                        showLoading(false);
+                        Log.e(TAG, "Network error: " + t.getMessage(), t);
+                        Toast.makeText(DiagnosisHistoryActivity.this,
+                                "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                        showEmptyState();
+                    }
+                });
+    }
+
+    private void displayDiagnosisHistory() {
+        diagnosisContainer.removeAllViews();
+
+        for (int i = 0; i < patientList.size(); i++) {
+            Patient patient = patientList.get(i);
+            View cardView = createDiagnosisCard(patient, i + 1);
+            diagnosisContainer.addView(cardView);
+        }
+
+        tvEmptyState.setVisibility(View.GONE);
+        scrollView.setVisibility(View.VISIBLE);
+    }
+
+    private View createDiagnosisCard(Patient patient, int position) {
+        View cardView = LayoutInflater.from(this)
+                .inflate(R.layout.item_diagnosis_card, diagnosisContainer, false);
+
+        // Find views in the card
+        TextView tvDiagnosisTitle = cardView.findViewById(R.id.tvDiagnosisTitle);
+        TextView tvDate = cardView.findViewById(R.id.tvDate);
+        TextView tvPatientName = cardView.findViewById(R.id.tvPatientName);
+        TextView tvAge = cardView.findViewById(R.id.tvAge);
+        TextView tvPemphigus = cardView.findViewById(R.id.tvPemphigus);
+        TextView tvConfidence = cardView.findViewById(R.id.tvConfidence);
+        LinearLayout btnReport = cardView.findViewById(R.id.btnReport);
+        ImageView ivGenderIcon = cardView.findViewById(R.id.ivGenderIcon);
+
+        // Set data
+        tvDiagnosisTitle.setText("Diagnosis " + position);
+        tvDate.setText(patient.getFormattedDate());
+        tvPatientName.setText("Name: " + patient.getPatientName());
+        tvAge.setText("Age: " + patient.getAge());
+
+        boolean isPemphigus = patient.isPemphigus();
+        tvPemphigus.setText("Pemphigus: " + (isPemphigus ? "Yes" : "No"));
+        tvConfidence.setText("Confidence: " + String.format("%.0f%%", patient.getConfidence()));
+
+        // Set gender icon
+        if ("female".equalsIgnoreCase(patient.getGender())) {
+            ivGenderIcon.setImageResource(R.drawable.ic_female);
+        } else {
+            ivGenderIcon.setImageResource(R.drawable.ic_male);
+        }
+
+        // Set click listener for report button
+        btnReport.setOnClickListener(v -> openReport(patient));
+
+        return cardView;
+    }
+
+    private void openReport(Patient patient) {
         Intent intent = new Intent(DiagnosisHistoryActivity.this, DiagnosisReportActivity.class);
-        intent.putExtra("diagnosis_id", record.getDiagnosisName());
-        intent.putExtra("name", record.getName());
-        intent.putExtra("age", record.getAge());
-        intent.putExtra("pemphigus", record.isPemphigus());
-        intent.putExtra("date", record.getDate());
-        intent.putExtra("confidence", record.getConfidence());
-        intent.putExtra("gender", record.getGender());
 
-        try {
-            startActivity(intent);
-        } catch (Exception e) {
-            Toast.makeText(this, "Report feature coming soon!", Toast.LENGTH_SHORT).show();
+        intent.putExtra("diagnosis_id", "Diagnosis Report #" + patient.getId());
+        intent.putExtra("name", patient.getPatientName());
+        intent.putExtra("age", patient.getAge());
+        intent.putExtra("pemphigus", patient.isPemphigus());
+        intent.putExtra("date", patient.getFormattedDate());
+        intent.putExtra("confidence", (int) patient.getConfidence());
+        intent.putExtra("gender", patient.getGender());
+        intent.putExtra("contact_number", patient.getContactNumber());
+        intent.putExtra("image_url", patient.getDiagnosisingImage());
+
+        startActivity(intent);
+    }
+
+    private void showLoading(boolean show) {
+        if (show) {
+            progressBar.setVisibility(View.VISIBLE);
+            scrollView.setVisibility(View.GONE);
+            tvEmptyState.setVisibility(View.GONE);
+        } else {
+            progressBar.setVisibility(View.GONE);
         }
     }
 
-    // Inner class to store diagnosis data
-    public static class DiagnosisRecord {
-        private String diagnosisName;
-        private String name;
-        private int age;
-        private boolean isPemphigus;
-        private String date;
-        private int confidence;
-        private String gender;
-
-        public DiagnosisRecord(String diagnosisName, String name, int age,
-                               boolean isPemphigus, String date, int confidence, String gender) {
-            this.diagnosisName = diagnosisName;
-            this.name = name;
-            this.age = age;
-            this.isPemphigus = isPemphigus;
-            this.date = date;
-            this.confidence = confidence;
-            this.gender = gender;
-        }
-
-        // Getters
-        public String getDiagnosisName() { return diagnosisName; }
-        public String getName() { return name; }
-        public int getAge() { return age; }
-        public boolean isPemphigus() { return isPemphigus; }
-        public String getDate() { return date; }
-        public int getConfidence() { return confidence; }
-        public String getGender() { return gender; }
+    private void showEmptyState() {
+        diagnosisContainer.removeAllViews();
+        scrollView.setVisibility(View.GONE);
+        tvEmptyState.setVisibility(View.VISIBLE);
     }
 }

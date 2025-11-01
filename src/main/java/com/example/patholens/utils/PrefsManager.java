@@ -2,9 +2,11 @@ package com.example.patholens.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 public class PrefsManager {
 
+    private static final String TAG = "PrefsManager";
     private static final String PREF_NAME = "PatholensPrefs";
     private static final String KEY_TOKEN = "token";
     private static final String KEY_USER_ID = "user_id";
@@ -14,6 +16,7 @@ public class PrefsManager {
     private static final String KEY_USER_GENDER = "userGender";
     private static final String KEY_USER_PHONE = "userPhone";
     private static final String KEY_IS_LOGGED_IN = "is_logged_in";
+    private static final String KEY_IS_NEW_USER = "is_new_user";
 
     private final SharedPreferences prefs;
     private final SharedPreferences.Editor editor;
@@ -31,6 +34,8 @@ public class PrefsManager {
         editor.putString(KEY_USER_EMAIL, userEmail);
         editor.putBoolean(KEY_IS_LOGGED_IN, true);
         editor.apply();
+
+        Log.d(TAG, "Login data saved - UserID: " + userId + ", Token length: " + (token != null ? token.length() : 0));
     }
 
     // Alias for saveLoginData (for compatibility with RegistrationActivity)
@@ -50,26 +55,35 @@ public class PrefsManager {
 
     // Get token
     public String getToken() {
-        return prefs.getString(KEY_TOKEN, null);
+        String token = prefs.getString(KEY_TOKEN, null);
+        Log.d(TAG, "Retrieved token: " + (token != null ? "exists (length: " + token.length() + ")" : "null"));
+        return token;
+    }
+
+    // Alias method for backward compatibility
+    public String getAuthToken() {
+        return getToken();
     }
 
     // Add this method to check if user just registered
     public void setNewUser(boolean isNew) {
-        prefs.edit().putBoolean("is_new_user", isNew).apply();
+        prefs.edit().putBoolean(KEY_IS_NEW_USER, isNew).apply();
     }
 
     public boolean isNewUser() {
-        boolean isNew = prefs.getBoolean("is_new_user", false);
+        boolean isNew = prefs.getBoolean(KEY_IS_NEW_USER, false);
         // Clear the flag after reading it once
         if (isNew) {
-            prefs.edit().putBoolean("is_new_user", false).apply();
+            prefs.edit().putBoolean(KEY_IS_NEW_USER, false).apply();
         }
         return isNew;
     }
 
     // Get user ID
     public int getUserId() {
-        return prefs.getInt(KEY_USER_ID, -1);
+        int userId = prefs.getInt(KEY_USER_ID, -1);
+        Log.d(TAG, "Retrieved user ID: " + userId);
+        return userId;
     }
 
     // Get user name
@@ -99,18 +113,28 @@ public class PrefsManager {
 
     // Check if user is logged in
     public boolean isLoggedIn() {
-        return prefs.getBoolean(KEY_IS_LOGGED_IN, false);
+        boolean loggedIn = prefs.getBoolean(KEY_IS_LOGGED_IN, false);
+        Log.d(TAG, "Is logged in: " + loggedIn);
+        return loggedIn;
     }
 
     // Clear session (logout)
     public void clearSession() {
+        Log.d(TAG, "Clearing session data");
         editor.clear();
         editor.apply();
     }
 
+    // Alias for clearSession
+    public void clearLoginData() {
+        clearSession();
+    }
+
     public void clearAll() {
+        Log.d(TAG, "Clearing all data");
         prefs.edit().clear().apply();
     }
+
     // Alias for clearSession (for compatibility)
     public void clearData() {
         clearSession();
@@ -122,4 +146,17 @@ public class PrefsManager {
         return token != null ? "Bearer " + token : null;
     }
 
+    // Debug method to print all stored data
+    public void debugPrintAll() {
+        Log.d(TAG, "=== PrefsManager Debug ===");
+        Log.d(TAG, "Is Logged In: " + isLoggedIn());
+        Log.d(TAG, "User ID: " + getUserId());
+        Log.d(TAG, "User Name: " + getUserName());
+        Log.d(TAG, "User Email: " + getUserEmail());
+        Log.d(TAG, "User Age: " + getUserAge());
+        Log.d(TAG, "User Gender: " + getUserGender());
+        Log.d(TAG, "User Phone: " + getUserPhone());
+        Log.d(TAG, "Token exists: " + (getToken() != null));
+        Log.d(TAG, "========================");
+    }
 }

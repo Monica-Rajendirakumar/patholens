@@ -8,6 +8,8 @@ import com.example.patholens.modules.UserResponse;
 import com.example.patholens.modules.UpdateUserRequest;
 import com.example.patholens.modules.NewsResponse;
 import com.example.patholens.modules.ProfileImageResponse;
+import com.example.patholens.modules.PatientRequest;
+import com.example.patholens.modules.PatientResponse;
 
 import okhttp3.MultipartBody;
 import okhttp3.ResponseBody;
@@ -21,6 +23,7 @@ import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Part;  // ADD THIS LINE
 import retrofit2.http.Path;
+import okhttp3.RequestBody;
 
 public interface ApiService {
 
@@ -59,6 +62,61 @@ public interface ApiService {
             @Header("Authorization") String token,
             @Part MultipartBody.Part image
     );
+    // Store patient diagnosis with image
+    @Multipart
+    @POST("patients")
+    Call<PatientResponse> storePatientWithImage(
+            @Header("Authorization") String token,
+            @Part("user_id") RequestBody userId,
+            @Part("patient_name") RequestBody patientName,
+            @Part("age") RequestBody age,
+            @Part("gender") RequestBody gender,
+            @Part("contact_number") RequestBody contactNumber,
+            @Part("result") RequestBody result,
+            @Part("confidence") RequestBody confidence,
+            @Part MultipartBody.Part diagnosingImage
+    );
+
+    // Store patient diagnosis without image
+    @POST("patients")
+    Call<PatientResponse> storePatient(
+            @Header("Authorization") String token,
+            @Body PatientRequest request
+    );
+
+    // Get all patients
+    @GET("patients")
+    Call<PatientResponse> getAllPatients(@Header("Authorization") String token);
+
+    // Get patient history for specific user
+    @GET("patients/user/{user_id}")
+    Call<PatientResponse> getUserPatientHistory(
+            @Path("user_id") String userId,
+            @Header("Authorization") String token
+    );
+
+    // Get specific patient record
+    @GET("patients/{id}")
+    Call<PatientResponse> getPatient(
+            @Path("id") int patientId,
+            @Header("Authorization") String token
+    );
+
+    // Update patient record
+    @PUT("patients/{id}")
+    Call<PatientResponse> updatePatient(
+            @Path("id") int patientId,
+            @Header("Authorization") String token,
+            @Body PatientRequest request
+    );
+
+    // Delete patient record
+    @DELETE("patients/{id}")
+    Call<PatientResponse> deletePatient(
+            @Path("id") int patientId,
+            @Header("Authorization") String token
+    );
+
 
     @DELETE("me/image")
     Call<ProfileImageResponse> deleteProfileImage(@Header("Authorization") String token);
