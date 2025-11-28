@@ -2,7 +2,6 @@ package com.example.patholens;
 
 import android.os.Bundle;
 import android.widget.ImageView;
-
 import androidx.appcompat.app.AppCompatActivity;
 
 public class TermsActivity extends AppCompatActivity {

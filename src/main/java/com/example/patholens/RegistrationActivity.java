@@ -11,12 +11,15 @@ import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
+
 import com.example.patholens.api.RetrofitClient;
 import com.example.patholens.modules.AuthResponse;
 import com.example.patholens.modules.RegisterRequest;
 import com.example.patholens.utils.PrefsManager;
 import com.google.android.material.textfield.TextInputEditText;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -24,6 +27,11 @@ import retrofit2.Response;
 public class RegistrationActivity extends AppCompatActivity {
 
     private static final String TAG = "RegistrationActivity";
+    private static final int MIN_NAME_LENGTH = 2;
+    private static final int MIN_PASSWORD_LENGTH = 8;
+    private static final int MIN_AGE = 1;
+    private static final int MAX_AGE = 120;
+    private static final int MIN_PHONE_LENGTH = 10;
 
     private TextInputEditText etName, etAge, etContact, etEmail, etPassword, etPasswordConfirm;
     private Spinner spinnerGender;
@@ -37,10 +45,13 @@ public class RegistrationActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_registration);
 
-        // Initialize PrefsManager
         prefsManager = new PrefsManager(this);
+        initializeViews();
+        setupGenderSpinner();
+        setupListeners();
+    }
 
-        // Initialize views
+    private void initializeViews() {
         etName = findViewById(R.id.etName);
         etAge = findViewById(R.id.etAge);
         etContact = findViewById(R.id.etContact);
@@ -50,21 +61,6 @@ public class RegistrationActivity extends AppCompatActivity {
         etPasswordConfirm = findViewById(R.id.etPasswordConfirm);
         btnRegister = findViewById(R.id.btnRegister);
         tvLogin = findViewById(R.id.tvLogin);
-
-        // Setup gender spinner
-        setupGenderSpinner();
-
-        // Register button click
-        btnRegister.setOnClickListener(v -> {
-            if (validateInput()) {
-                performRegistration();
-            }
-        });
-
-        // Login link click
-        tvLogin.setOnClickListener(v -> {
-            finish(); // Go back to login
-        });
     }
 
     private void setupGenderSpinner() {
@@ -87,28 +83,43 @@ public class RegistrationActivity extends AppCompatActivity {
         });
     }
 
-    private boolean validateInput() {
-        String name = etName.getText().toString().trim();
-        String age = etAge.getText().toString().trim();
-        String contact = etContact.getText().toString().trim();
-        String email = etEmail.getText().toString().trim();
-        String password = etPassword.getText().toString().trim();
-        String passwordConfirm = etPasswordConfirm.getText().toString().trim();
+    private void setupListeners() {
+        btnRegister.setOnClickListener(v -> {
+            if (validateInput()) {
+                performRegistration();
+            }
+        });
 
-        // Validate Name
+        tvLogin.setOnClickListener(v -> finish());
+    }
+
+    private boolean validateInput() {
+        return validateName() && validateEmail() && validatePassword() &&
+                validatePasswordConfirmation() && validateAge() &&
+                validateGender() && validatePhone();
+    }
+
+    private boolean validateName() {
+        String name = etName.getText().toString().trim();
+
         if (TextUtils.isEmpty(name)) {
             etName.setError("Name is required");
             etName.requestFocus();
             return false;
         }
 
-        if (name.length() < 2) {
-            etName.setError("Name must be at least 2 characters");
+        if (name.length() < MIN_NAME_LENGTH) {
+            etName.setError("Name must be at least " + MIN_NAME_LENGTH + " characters");
             etName.requestFocus();
             return false;
         }
 
-        // Validate Email
+        return true;
+    }
+
+    private boolean validateEmail() {
+        String email = etEmail.getText().toString().trim();
+
         if (TextUtils.isEmpty(email)) {
             etEmail.setError("Email is required");
             etEmail.requestFocus();
@@ -121,20 +132,31 @@ public class RegistrationActivity extends AppCompatActivity {
             return false;
         }
 
-        // Validate Password
+        return true;
+    }
+
+    private boolean validatePassword() {
+        String password = etPassword.getText().toString().trim();
+
         if (TextUtils.isEmpty(password)) {
             etPassword.setError("Password is required");
             etPassword.requestFocus();
             return false;
         }
 
-        if (password.length() < 8) {
-            etPassword.setError("Password must be at least 8 characters");
+        if (password.length() < MIN_PASSWORD_LENGTH) {
+            etPassword.setError("Password must be at least " + MIN_PASSWORD_LENGTH + " characters");
             etPassword.requestFocus();
             return false;
         }
 
-        // Validate Password Confirmation
+        return true;
+    }
+
+    private boolean validatePasswordConfirmation() {
+        String password = etPassword.getText().toString().trim();
+        String passwordConfirm = etPasswordConfirm.getText().toString().trim();
+
         if (TextUtils.isEmpty(passwordConfirm)) {
             etPasswordConfirm.setError("Please confirm your password");
             etPasswordConfirm.requestFocus();
@@ -147,7 +169,12 @@ public class RegistrationActivity extends AppCompatActivity {
             return false;
         }
 
-        // Validate Age
+        return true;
+    }
+
+    private boolean validateAge() {
+        String age = etAge.getText().toString().trim();
+
         if (TextUtils.isEmpty(age)) {
             etAge.setError("Age is required");
             etAge.requestFocus();
@@ -156,38 +183,43 @@ public class RegistrationActivity extends AppCompatActivity {
 
         try {
             int ageValue = Integer.parseInt(age);
-            if (ageValue < 1 || ageValue > 120) {
-                etAge.setError("Please enter a valid age (1-120)");
+            if (ageValue < MIN_AGE || ageValue > MAX_AGE) {
+                etAge.setError("Please enter a valid age (" + MIN_AGE + "-" + MAX_AGE + ")");
                 etAge.requestFocus();
                 return false;
             }
+            return true;
         } catch (NumberFormatException e) {
             etAge.setError("Please enter a valid age");
             etAge.requestFocus();
             return false;
         }
+    }
 
-        // Validate Gender
+    private boolean validateGender() {
         if (selectedGender.equals("Select Gender") || TextUtils.isEmpty(selectedGender)) {
             Toast.makeText(this, "Please select your gender", Toast.LENGTH_SHORT).show();
             spinnerGender.requestFocus();
             return false;
         }
+        return true;
+    }
 
-        // Validate Phone Number
+    private boolean validatePhone() {
+        String contact = etContact.getText().toString().trim();
+
         if (TextUtils.isEmpty(contact)) {
             etContact.setError("Phone number is required");
             etContact.requestFocus();
             return false;
         }
 
-        if (contact.length() < 10) {
-            etContact.setError("Please enter a valid phone number (min 10 digits)");
+        if (contact.length() < MIN_PHONE_LENGTH) {
+            etContact.setError("Please enter a valid phone number (min " + MIN_PHONE_LENGTH + " digits)");
             etContact.requestFocus();
             return false;
         }
 
-        // Check if phone number contains only digits
         if (!contact.matches("[0-9]+")) {
             etContact.setError("Phone number should contain only digits");
             etContact.requestFocus();
@@ -198,88 +230,26 @@ public class RegistrationActivity extends AppCompatActivity {
     }
 
     private void performRegistration() {
-        // Disable button and show loading state
-        btnRegister.setEnabled(false);
-        btnRegister.setText("Registering...");
+        setLoadingState(true);
 
-        // Get form data
-        String name = etName.getText().toString().trim();
-        String email = etEmail.getText().toString().trim();
-        String password = etPassword.getText().toString().trim();
-        String passwordConfirm = etPasswordConfirm.getText().toString().trim();
-        String ageStr = etAge.getText().toString().trim();
-        String contact = etContact.getText().toString().trim();
+        RegisterRequest registerRequest = createRegisterRequest();
 
-        // Parse age to Integer
-        Integer age = null;
-        try {
-            age = Integer.parseInt(ageStr);
-        } catch (NumberFormatException e) {
-            Log.e(TAG, "Age parsing error: " + e.getMessage());
-        }
-
-        // Convert gender to match backend format
-        String gender = convertGenderForBackend(selectedGender);
-
-        // Create registration request
-        RegisterRequest registerRequest = new RegisterRequest(
-                name,
-                email,
-                password,
-                passwordConfirm,
-                age,
-                gender,
-                contact
-        );
-
-        // Make API call
         Call<AuthResponse> call = RetrofitClient.getInstance().getApiService().register(registerRequest);
         call.enqueue(new Callback<AuthResponse>() {
             @Override
             public void onResponse(Call<AuthResponse> call, Response<AuthResponse> response) {
-                // Re-enable button
-                btnRegister.setEnabled(true);
-                btnRegister.setText("Register");
+                setLoadingState(false);
 
                 if (response.isSuccessful() && response.body() != null) {
-                    AuthResponse authResponse = response.body();
-
-                    if (authResponse.isSuccess()) {
-                        // Registration successful
-                        AuthResponse.Data data = authResponse.getData();
-                        AuthResponse.User user = data.getUser();
-
-                        // Save user data and token
-                        prefsManager.saveUserSession(
-                                data.getToken(),
-                                user.getId(),
-                                user.getName(),
-                                user.getEmail()
-                        );
-
-                        Toast.makeText(RegistrationActivity.this,
-                                "Welcome " + user.getName() + "! Registration successful!",
-                                Toast.LENGTH_SHORT).show();
-
-                        // Navigate to main activity
-                        navigateToMain();
-                    } else {
-                        // Registration failed
-                        handleErrorResponse(authResponse);
-                    }
+                    handleRegistrationResponse(response.body());
                 } else {
-                    // Handle HTTP error response
                     handleHttpError(response.code(), response.message());
                 }
             }
 
             @Override
             public void onFailure(Call<AuthResponse> call, Throwable t) {
-                // Re-enable button
-                btnRegister.setEnabled(true);
-                btnRegister.setText("Register");
-
-                // Network error or server not reachable
+                setLoadingState(false);
                 Toast.makeText(RegistrationActivity.this,
                         "Network error. Please check your connection.",
                         Toast.LENGTH_LONG).show();
@@ -288,8 +258,30 @@ public class RegistrationActivity extends AppCompatActivity {
         });
     }
 
+    private RegisterRequest createRegisterRequest() {
+        String name = etName.getText().toString().trim();
+        String email = etEmail.getText().toString().trim();
+        String password = etPassword.getText().toString().trim();
+        String passwordConfirm = etPasswordConfirm.getText().toString().trim();
+        String ageStr = etAge.getText().toString().trim();
+        String contact = etContact.getText().toString().trim();
+
+        Integer age = parseAge(ageStr);
+        String gender = convertGenderForBackend(selectedGender);
+
+        return new RegisterRequest(name, email, password, passwordConfirm, age, gender, contact);
+    }
+
+    private Integer parseAge(String ageStr) {
+        try {
+            return Integer.parseInt(ageStr);
+        } catch (NumberFormatException e) {
+            Log.e(TAG, "Age parsing error: " + e.getMessage());
+            return null;
+        }
+    }
+
     private String convertGenderForBackend(String displayGender) {
-        // Convert display values to backend format
         switch (displayGender) {
             case "Male":
                 return "male";
@@ -304,12 +296,36 @@ public class RegistrationActivity extends AppCompatActivity {
         }
     }
 
+    private void handleRegistrationResponse(AuthResponse authResponse) {
+        if (authResponse.isSuccess()) {
+            handleSuccessfulRegistration(authResponse);
+        } else {
+            handleErrorResponse(authResponse);
+        }
+    }
+
+    private void handleSuccessfulRegistration(AuthResponse authResponse) {
+        AuthResponse.Data data = authResponse.getData();
+        AuthResponse.User user = data.getUser();
+
+        prefsManager.saveUserSession(
+                data.getToken(),
+                user.getId(),
+                user.getName(),
+                user.getEmail()
+        );
+
+        Toast.makeText(this, "Welcome " + user.getName() + "! Registration successful!",
+                Toast.LENGTH_SHORT).show();
+
+        navigateToMain();
+    }
+
     private void handleErrorResponse(AuthResponse authResponse) {
         String message = authResponse.getMessage();
         Object errors = authResponse.getErrors();
 
         if (errors != null) {
-            // Display validation errors
             Toast.makeText(this, message + "\nPlease check your input.", Toast.LENGTH_LONG).show();
             Log.e(TAG, "Validation errors: " + errors.toString());
         } else {
@@ -318,29 +334,31 @@ public class RegistrationActivity extends AppCompatActivity {
     }
 
     private void handleHttpError(int statusCode, String message) {
-        String errorMessage;
-
-        switch (statusCode) {
-            case 422:
-                errorMessage = "Please check your input. Some fields may be invalid or already registered.";
-                break;
-            case 500:
-                errorMessage = "Server error. Please try again later.";
-                break;
-            default:
-                errorMessage = "Registration failed: " + message;
-                break;
-        }
-
+        String errorMessage = getHttpErrorMessage(statusCode, message);
         Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show();
         Log.e(TAG, "HTTP Error " + statusCode + ": " + message);
     }
 
+    private String getHttpErrorMessage(int statusCode, String message) {
+        switch (statusCode) {
+            case 422:
+                return "Please check your input. Some fields may be invalid or already registered.";
+            case 500:
+                return "Server error. Please try again later.";
+            default:
+                return "Registration failed: " + message;
+        }
+    }
+
+    private void setLoadingState(boolean isLoading) {
+        btnRegister.setEnabled(!isLoading);
+        btnRegister.setText(isLoading ? "Registering..." : "Register");
+    }
+
     private void navigateToMain() {
-        Intent intent = new Intent(RegistrationActivity.this, MainActivity.class);
+        Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
-        // After successful registration, mark as new user
         prefsManager.setNewUser(true);
-        finish(); // Close registration activity
+        finish();
     }
 }

@@ -2,20 +2,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- For Android 13+ (to read images) -->
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
-
-    <!-- For Android 12 and below (to read files/images) -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />
-
-    <!-- To access the device camera -->
     <uses-permission android:name="android.permission.CAMERA" />
-
-    <!-- For API calls, image uploads, or ML models -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-
 
     <uses-feature android:name="android.hardware.camera" android:required="false" />
 
@@ -31,7 +23,6 @@
         android:theme="@style/Theme.Patholens"
         tools:targetApi="31">
 
-        <!-- Activity must be INSIDE the application tag -->
         <activity
             android:name=".LoginActivity"
             android:exported="true"
@@ -42,31 +33,35 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".RegistrationActivity"
+        <activity
+            android:name=".RegistrationActivity"
             android:exported="false"
             android:theme="@style/Theme.Patholens.NoActionBar"
-            android:parentActivityName=".RegistrationActivity"/>
+            android:parentActivityName=".LoginActivity"/>
 
-        <activity android:name=".ForgotPasswordActivity"
+        <activity
+            android:name=".ForgotPasswordActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Patholens.NoActionBar"
+            android:parentActivityName=".LoginActivity"/>
+
+        <activity
+            android:name=".ResetPasswordActivity"
             android:exported="false"
             android:theme="@style/Theme.Patholens.NoActionBar"
             android:parentActivityName=".ForgotPasswordActivity"/>
 
-        <activity android:name=".ResetPasswordActivity"
+        <activity
+            android:name=".MainActivity"
             android:exported="false"
             android:theme="@style/Theme.Patholens.NoActionBar"
-            android:parentActivityName=".ResetPasswordActivity"/>
-
-        <activity android:name=".MainActivity"
-            android:exported="false"
-            android:theme="@style/Theme.Patholens.NoActionBar"
-            android:parentActivityName=".UserProfileActivity"/>
+            android:parentActivityName=".MainActivity"/>
 
         <activity
             android:name=".UserProfileActivity"
             android:exported="false"
             android:theme="@style/Theme.Patholens.NoActionBar"
-            android:parentActivityName=".UserProfileActivity"/>
+            android:parentActivityName=".MainActivity"/>
 
         <activity
             android:name=".EditProfileActivity"
@@ -74,15 +69,17 @@
             android:theme="@style/Theme.Patholens.NoActionBar"
             android:parentActivityName=".UserProfileActivity"/>
 
-        <activity android:name=".DiagnosisHistoryActivity"
+        <activity
+            android:name=".DiagnosisHistoryActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Patholens.NoActionBar"
+            android:parentActivityName=".MainActivity"/>
+
+        <activity
+            android:name=".DiagnosisReportActivity"
             android:exported="false"
             android:theme="@style/Theme.Patholens.NoActionBar"
             android:parentActivityName=".DiagnosisHistoryActivity"/>
-
-        <activity android:name=".DiagnosisReportActivity"
-            android:exported="false"
-            android:theme="@style/Theme.Patholens.NoActionBar"
-            android:parentActivityName=".DiagnosisReportActivity"/>
 
         <activity
             android:name=".TermsActivity"
@@ -90,20 +87,23 @@
             android:theme="@style/Theme.Patholens.NoActionBar"
             android:parentActivityName=".UserProfileActivity"/>
 
-        <activity android:name=".PrivacyActivity"
+        <activity
+            android:name=".PrivacyActivity"
             android:exported="false"
             android:theme="@style/Theme.Patholens.NoActionBar"
-            android:parentActivityName=".PrivacyActivity"/>
+            android:parentActivityName=".UserProfileActivity"/>
 
-        <activity android:name=".ChangePasswordActivity"
+        <activity
+            android:name=".ChangePasswordActivity"
             android:exported="false"
             android:theme="@style/Theme.Patholens.NoActionBar"
-            android:parentActivityName=".ChangePasswordActivity"/>
+            android:parentActivityName=".EditProfileActivity"/>
 
-        <activity android:name=".PatientInformationActivity"
+        <activity
+            android:name=".PatientInformationActivity"
             android:exported="false"
             android:theme="@style/Theme.Patholens.NoActionBar"
-            android:parentActivityName=".LoginActivity"/>
+            android:parentActivityName=".MainActivity"/>
 
         <activity
             android:name=".QuestionnaireActivity"
@@ -121,15 +121,13 @@
             android:name=".DiagnosingActivity"
             android:exported="false"
             android:theme="@style/Theme.Patholens.NoActionBar"
-            android:parentActivityName=".DiagnosingActivity" />
+            android:parentActivityName=".ImageUploadActivity" />
 
         <activity
             android:name=".ResultActivity"
             android:exported="false"
             android:theme="@style/Theme.Patholens.NoActionBar"
-            android:parentActivityName=".ResultActivity" />
-
-
+            android:parentActivityName=".DiagnosingActivity" />
 
     </application>
 

@@ -1,5 +1,6 @@
 package com.example.patholens;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
@@ -11,14 +12,31 @@ import androidx.cardview.widget.CardView;
 
 public class DiagnosisReportActivity extends AppCompatActivity {
 
-    private ImageView btnBack, btnShare, btnDownload;
-    private TextView tvDiagnosisTitle, tvPatientName, tvPatientAge, tvPatientGender;
-    private TextView tvDiagnosisDate, tvDiagnosisResult, tvConfidenceScore;
-    private TextView tvConfidencePercentage, tvRecommendations, tvNotes;
-    private CardView cardPatientInfo, cardDiagnosisInfo, cardRecommendations;
+    private static final int HIGH_CONFIDENCE_THRESHOLD = 90;
 
-    private String diagnosisId, patientName, gender, date;
-    private int age, confidence;
+    private ImageView btnBack;
+    private ImageView btnShare;
+    private ImageView btnDownload;
+    private TextView tvDiagnosisTitle;
+    private TextView tvPatientName;
+    private TextView tvPatientAge;
+    private TextView tvPatientGender;
+    private TextView tvDiagnosisDate;
+    private TextView tvDiagnosisResult;
+    private TextView tvConfidenceScore;
+    private TextView tvConfidencePercentage;
+    private TextView tvRecommendations;
+    private TextView tvNotes;
+    private CardView cardPatientInfo;
+    private CardView cardDiagnosisInfo;
+    private CardView cardRecommendations;
+
+    private String diagnosisId;
+    private String patientName;
+    private String gender;
+    private String date;
+    private int age;
+    private int confidence;
     private boolean isPemphigus;
 
     @Override
@@ -54,66 +72,86 @@ public class DiagnosisReportActivity extends AppCompatActivity {
     }
 
     private void loadDataFromIntent() {
-        diagnosisId = getIntent().getStringExtra("diagnosis_id");
-        patientName = getIntent().getStringExtra("name");
-        age = getIntent().getIntExtra("age", 0);
-        isPemphigus = getIntent().getBooleanExtra("pemphigus", false);
-        date = getIntent().getStringExtra("date");
-        confidence = getIntent().getIntExtra("confidence", 0);
-        gender = getIntent().getStringExtra("gender");
+        Intent intent = getIntent();
+        diagnosisId = intent.getStringExtra("diagnosis_id");
+        patientName = intent.getStringExtra("name");
+        age = intent.getIntExtra("age", 0);
+        isPemphigus = intent.getBooleanExtra("pemphigus", false);
+        date = intent.getStringExtra("date");
+        confidence = intent.getIntExtra("confidence", 0);
+        gender = intent.getStringExtra("gender");
     }
 
     private void displayReportData() {
-        // Set diagnosis title
-        tvDiagnosisTitle.setText(diagnosisId != null ? diagnosisId : "Diagnosis Report");
+        displayDiagnosisTitle();
+        displayPatientInformation();
+        displayDiagnosisInformation();
+        displayRecommendationsAndNotes();
+    }
 
-        // Set patient information
+    private void displayDiagnosisTitle() {
+        String title = diagnosisId != null ? diagnosisId : "Diagnosis Report";
+        tvDiagnosisTitle.setText(title);
+    }
+
+    private void displayPatientInformation() {
         tvPatientName.setText(patientName != null ? patientName : "N/A");
-        tvPatientAge.setText(String.valueOf(age) + " years");
+        tvPatientAge.setText(age + " years");
         tvPatientGender.setText(gender != null ? capitalizeFirst(gender) : "N/A");
+    }
 
-        // Set diagnosis information
+    private void displayDiagnosisInformation() {
         tvDiagnosisDate.setText(date != null ? date : "N/A");
-        tvDiagnosisResult.setText(isPemphigus ? "Pemphigus Detected" : "No Pemphigus Detected");
-        tvConfidenceScore.setText(confidence + "%");
-        tvConfidencePercentage.setText("Confidence: " + confidence + "%");
 
-        // Set color based on result
-        if (isPemphigus) {
-            tvDiagnosisResult.setTextColor(getResources().getColor(android.R.color.holo_red_dark));
-        } else {
-            tvDiagnosisResult.setTextColor(getResources().getColor(android.R.color.holo_green_dark));
-        }
+        String resultText = isPemphigus ? "Pemphigus Detected" : "No Pemphigus Detected";
+        tvDiagnosisResult.setText(resultText);
 
-        // Set recommendations based on diagnosis
+        int resultColor = isPemphigus ?
+                android.R.color.holo_red_dark :
+                android.R.color.holo_green_dark;
+        tvDiagnosisResult.setTextColor(getResources().getColor(resultColor));
+
+        String confidenceText = confidence + "%";
+        tvConfidenceScore.setText(confidenceText);
+        tvConfidencePercentage.setText("Confidence: " + confidenceText);
+    }
+
+    private void displayRecommendationsAndNotes() {
         String recommendations = getRecommendations(isPemphigus, confidence);
         tvRecommendations.setText(recommendations);
 
-        // Set clinical notes
         String notes = getClinicalNotes(isPemphigus);
         tvNotes.setText(notes);
     }
 
     private String getRecommendations(boolean isPemphigus, int confidence) {
         if (isPemphigus) {
-            if (confidence >= 90) {
-                return "• Immediate consultation with a dermatologist is strongly recommended\n" +
-                        "• Consider starting corticosteroid therapy\n" +
-                        "• Perform biopsy for confirmation\n" +
-                        "• Monitor for secondary infections\n" +
-                        "• Regular follow-up appointments required";
-            } else {
-                return "• Consult with a dermatologist for further evaluation\n" +
-                        "• Additional diagnostic tests may be required\n" +
-                        "• Monitor symptoms closely\n" +
-                        "• Schedule follow-up examination";
-            }
+            return getPositiveDiagnosisRecommendations(confidence);
         } else {
-            return "• Continue routine skin care practices\n" +
-                    "• Monitor for any changes in skin condition\n" +
-                    "• Schedule regular check-ups as needed\n" +
-                    "• Maintain good hygiene practices";
+            return getNegativeDiagnosisRecommendations();
         }
+    }
+
+    private String getPositiveDiagnosisRecommendations(int confidence) {
+        if (confidence >= HIGH_CONFIDENCE_THRESHOLD) {
+            return "• Immediate consultation with a dermatologist is strongly recommended\n" +
+                    "• Consider starting corticosteroid therapy\n" +
+                    "• Perform biopsy for confirmation\n" +
+                    "• Monitor for secondary infections\n" +
+                    "• Regular follow-up appointments required";
+        } else {
+            return "• Consult with a dermatologist for further evaluation\n" +
+                    "• Additional diagnostic tests may be required\n" +
+                    "• Monitor symptoms closely\n" +
+                    "• Schedule follow-up examination";
+        }
+    }
+
+    private String getNegativeDiagnosisRecommendations() {
+        return "• Continue routine skin care practices\n" +
+                "• Monitor for any changes in skin condition\n" +
+                "• Schedule regular check-ups as needed\n" +
+                "• Maintain good hygiene practices";
     }
 
     private String getClinicalNotes(boolean isPemphigus) {
@@ -136,30 +174,12 @@ public class DiagnosisReportActivity extends AppCompatActivity {
     }
 
     private void setupClickListeners() {
-        btnBack.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
-
-        btnShare.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                shareReport();
-            }
-        });
-
-        btnDownload.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                downloadReport();
-            }
-        });
+        btnBack.setOnClickListener(v -> finish());
+        btnShare.setOnClickListener(v -> shareReport());
+        btnDownload.setOnClickListener(v -> downloadReport());
     }
 
     private void shareReport() {
-        // Implement share functionality
         Toast.makeText(this, "Share feature coming soon!", Toast.LENGTH_SHORT).show();
 
         // Example implementation:
@@ -171,10 +191,7 @@ public class DiagnosisReportActivity extends AppCompatActivity {
     }
 
     private void downloadReport() {
-        // Implement download/save functionality
         Toast.makeText(this, "Download feature coming soon!", Toast.LENGTH_SHORT).show();
-
-        // You can implement PDF generation or data export here
     }
 
     private String getReportText() {

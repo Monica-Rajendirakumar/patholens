@@ -24,9 +24,15 @@ import retrofit2.Response;
 
 public class ChangePasswordActivity extends AppCompatActivity {
 
+    private static final int MIN_PASSWORD_LENGTH = 8;
+
     private ImageView btnBack;
-    private EditText etCurrentPassword, etNewPassword, etConfirmPassword;
-    private ImageView btnToggleCurrentPassword, btnToggleNewPassword, btnToggleConfirmPassword;
+    private EditText etCurrentPassword;
+    private EditText etNewPassword;
+    private EditText etConfirmPassword;
+    private ImageView btnToggleCurrentPassword;
+    private ImageView btnToggleNewPassword;
+    private ImageView btnToggleConfirmPassword;
     private Button btnSavePassword;
     private TextView tvErrorMessage;
 
@@ -43,7 +49,6 @@ public class ChangePasswordActivity extends AppCompatActivity {
         setContentView(R.layout.activity_change_password);
 
         prefsManager = new PrefsManager(this);
-
         initializeViews();
         setupClickListeners();
     }
@@ -64,7 +69,7 @@ public class ChangePasswordActivity extends AppCompatActivity {
         btnBack.setOnClickListener(v -> finish());
 
         btnSavePassword.setOnClickListener(v -> {
-            tvErrorMessage.setVisibility(View.GONE);
+            hideError();
             changePassword();
         });
 
@@ -120,8 +125,8 @@ public class ChangePasswordActivity extends AppCompatActivity {
             return false;
         }
 
-        if (newPassword.length() < 8) {
-            showError("Password must be at least 8 characters");
+        if (newPassword.length() < MIN_PASSWORD_LENGTH) {
+            showError("Password must be at least " + MIN_PASSWORD_LENGTH + " characters");
             etNewPassword.requestFocus();
             return false;
         }
@@ -148,11 +153,11 @@ public class ChangePasswordActivity extends AppCompatActivity {
     }
 
     private void makeChangePasswordRequest(String currentPassword, String newPassword, String confirmPassword) {
-        if (isLoading) return;
+        if (isLoading) {
+            return;
+        }
 
-        isLoading = true;
-        btnSavePassword.setEnabled(false);
-        btnSavePassword.setText("Changing...");
+        setLoadingState(true);
 
         ChangePasswordRequest request = new ChangePasswordRequest(
                 currentPassword,
@@ -160,7 +165,6 @@ public class ChangePasswordActivity extends AppCompatActivity {
                 confirmPassword
         );
 
-        // Get token - same way as MainActivity
         String token = prefsManager.getBearerToken();
 
         Call<ChangePasswordResponse> call = RetrofitClient.getInstance()
@@ -170,20 +174,10 @@ public class ChangePasswordActivity extends AppCompatActivity {
         call.enqueue(new Callback<ChangePasswordResponse>() {
             @Override
             public void onResponse(Call<ChangePasswordResponse> call, Response<ChangePasswordResponse> response) {
-                isLoading = false;
-                btnSavePassword.setEnabled(true);
-                btnSavePassword.setText("Save Password");
+                setLoadingState(false);
 
                 if (response.isSuccessful() && response.body() != null) {
-                    ChangePasswordResponse changeResponse = response.body();
-
-                    if (changeResponse.isSuccess()) {
-                        Toast.makeText(ChangePasswordActivity.this,
-                                changeResponse.getMessage(), Toast.LENGTH_LONG).show();
-                        logoutAndRedirect();
-                    } else {
-                        showError(changeResponse.getMessage());
-                    }
+                    handleSuccessfulResponse(response.body());
                 } else {
                     showError("Failed to change password. Please try again.");
                 }
@@ -191,20 +185,31 @@ public class ChangePasswordActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<ChangePasswordResponse> call, Throwable t) {
-                isLoading = false;
-                btnSavePassword.setEnabled(true);
-                btnSavePassword.setText("Save Password");
+                setLoadingState(false);
                 showError("Network error. Please check your connection.");
             }
         });
     }
 
+    private void handleSuccessfulResponse(ChangePasswordResponse changeResponse) {
+        if (changeResponse.isSuccess()) {
+            Toast.makeText(this, changeResponse.getMessage(), Toast.LENGTH_LONG).show();
+            logoutAndRedirect();
+        } else {
+            showError(changeResponse.getMessage());
+        }
+    }
+
+    private void setLoadingState(boolean loading) {
+        isLoading = loading;
+        btnSavePassword.setEnabled(!loading);
+        btnSavePassword.setText(loading ? "Changing..." : "Save Password");
+    }
+
     private void logoutAndRedirect() {
-        // Clear session using PrefsManager
         prefsManager.clearSession();
 
-        // Redirect to login
-        Intent intent = new Intent(ChangePasswordActivity.this, LoginActivity.class);
+        Intent intent = new Intent(this, LoginActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         intent.putExtra("password_changed", true);
         startActivity(intent);
@@ -216,8 +221,13 @@ public class ChangePasswordActivity extends AppCompatActivity {
         tvErrorMessage.setVisibility(View.VISIBLE);
     }
 
+    private void hideError() {
+        tvErrorMessage.setVisibility(View.GONE);
+    }
+
     @Override
     public void onBackPressed() {
+        super.onBackPressed();
         finish();
     }
 }

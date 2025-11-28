@@ -23,11 +23,21 @@ import com.example.patholens.utils.PrefsManager;
 import com.example.patholens.modules.ProfileImageResponse;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+
 public class UserProfileActivity extends AppCompatActivity {
+
+    private static final int EDIT_PROFILE_REQUEST = 100;
+    private static final String TAG = "UserProfile";
 
     private CircleImageView profileImage;
     private ImageView btnBack, btnEditImage;
@@ -37,12 +47,9 @@ public class UserProfileActivity extends AppCompatActivity {
     private LinearLayout btnEdit;
 
     private ActivityResultLauncher<Intent> imagePickerLauncher;
-    private Uri selectedImageUri;
-
     private PrefsManager prefsManager;
     private ApiService apiService;
 
-    // User data
     private String fullName = "";
     private int age = 0;
     private String gender = "";
@@ -54,44 +61,36 @@ public class UserProfileActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_user_profile);
 
-        try {
-            setContentView(R.layout.activity_user_profile);
+        initializeDependencies();
+        initializeViews();
+        setupImagePicker();
+        fetchUserProfile();
+        fetchProfileImage();
+        setupClickListeners();
+    }
 
-            prefsManager = new PrefsManager(this);
-            apiService = RetrofitClient.getInstance().getApiService();
-
-            initializeViews();
-            setupImagePicker();
-            fetchUserProfile();
-            fetchProfileImage();
-            setupClickListeners();
-        } catch (Exception e) {
-            e.printStackTrace();
-            Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
-        }
+    private void initializeDependencies() {
+        prefsManager = new PrefsManager(this);
+        apiService = RetrofitClient.getInstance().getApiService();
     }
 
     private void initializeViews() {
-        try {
-            profileImage = findViewById(R.id.profileImage);
-            btnBack = findViewById(R.id.btnBack);
-            btnEditImage = findViewById(R.id.btnEditImage);
-            btnEdit = findViewById(R.id.btnEdit);
+        profileImage = findViewById(R.id.profileImage);
+        btnBack = findViewById(R.id.btnBack);
+        btnEditImage = findViewById(R.id.btnEditImage);
+        btnEdit = findViewById(R.id.btnEdit);
 
-            tvFullName = findViewById(R.id.tvFullName);
-            tvAge = findViewById(R.id.tvAge);
-            tvGender = findViewById(R.id.tvGender);
-            tvContact = findViewById(R.id.tvContact);
-            tvDiagnoses = findViewById(R.id.tvDiagnoses);
-            tvConfidence = findViewById(R.id.tvConfidence);
+        tvFullName = findViewById(R.id.tvFullName);
+        tvAge = findViewById(R.id.tvAge);
+        tvGender = findViewById(R.id.tvGender);
+        tvContact = findViewById(R.id.tvContact);
+        tvDiagnoses = findViewById(R.id.tvDiagnoses);
+        tvConfidence = findViewById(R.id.tvConfidence);
 
-            btnTerms = findViewById(R.id.btnTerms);
-            btnPrivacy = findViewById(R.id.btnPrivacy);
-        } catch (Exception e) {
-            Toast.makeText(this, "View initialization error: " + e.getMessage(), Toast.LENGTH_LONG).show();
-            e.printStackTrace();
-        }
+        btnTerms = findViewById(R.id.btnTerms);
+        btnPrivacy = findViewById(R.id.btnPrivacy);
     }
 
     private void setupImagePicker() {
@@ -99,111 +98,77 @@ public class UserProfileActivity extends AppCompatActivity {
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
                     if (result.getResultCode() == RESULT_OK && result.getData() != null) {
-                        selectedImageUri = result.getData().getData();
-                        if (profileImage != null && selectedImageUri != null) {
-                            try {
-                                // Show image immediately
-                                Glide.with(this)
-                                        .load(selectedImageUri)
-                                        .placeholder(R.drawable.default_profile)
-                                        .error(R.drawable.default_profile)
-                                        .into(profileImage);
-
-                                // Upload to server
-                                uploadProfileImageToServer(selectedImageUri);
-                            } catch (Exception e) {
-                                Toast.makeText(this, "Error loading image", Toast.LENGTH_SHORT).show();
-                            }
+                        Uri selectedImageUri = result.getData().getData();
+                        if (selectedImageUri != null) {
+                            displaySelectedImage(selectedImageUri);
+                            uploadProfileImageToServer(selectedImageUri);
                         }
                     }
                 }
         );
     }
 
+    private void displaySelectedImage(Uri imageUri) {
+        Glide.with(this)
+                .load(imageUri)
+                .placeholder(R.drawable.default_profile)
+                .error(R.drawable.default_profile)
+                .into(profileImage);
+    }
+
     private void fetchUserProfile() {
         String token = prefsManager.getBearerToken();
 
-        android.util.Log.d("UserProfile", "=== FETCH PROFILE DEBUG ===");
-        android.util.Log.d("UserProfile", "Token: " + (token != null ? token.substring(0, Math.min(30, token.length())) + "..." : "NULL"));
-        android.util.Log.d("UserProfile", "User ID: " + prefsManager.getUserId());
-
         if (token == null) {
             Toast.makeText(this, "Please login again", Toast.LENGTH_SHORT).show();
+            loadDataFromPreferences();
             return;
         }
 
         apiService.getAuthenticatedUser(token).enqueue(new Callback<UserResponse>() {
             @Override
             public void onResponse(Call<UserResponse> call, Response<UserResponse> response) {
-                android.util.Log.d("UserProfile", "Response Code: " + response.code());
-                android.util.Log.d("UserProfile", "Response URL: " + call.request().url());
-
                 if (response.isSuccessful() && response.body() != null) {
-                    UserResponse userResponse = response.body();
-                    android.util.Log.d("UserProfile", "Status: " + userResponse.isStatus());
-
-                    if (userResponse.isStatus() && userResponse.getData() != null) {
-                        UserResponse.UserData userData = userResponse.getData();
-
-                        android.util.Log.d("UserProfile", "User Data Received:");
-                        android.util.Log.d("UserProfile", "Name: " + userData.getName());
-                        android.util.Log.d("UserProfile", "Email: " + userData.getEmail());
-                        android.util.Log.d("UserProfile", "Age: " + userData.getAge());
-                        android.util.Log.d("UserProfile", "Gender: " + userData.getGender());
-                        android.util.Log.d("UserProfile", "Phone: " + userData.getPhoneNumber());
-
-                        // Update local data
-                        fullName = userData.getName();
-                        age = userData.getAge();
-                        gender = userData.getGender();
-                        contact = userData.getPhoneNumber();
-                        email = userData.getEmail();
-
-                        // Save to preferences
-                        prefsManager.saveUserProfile(fullName, email, age, gender, contact);
-
-                        // Update UI
-                        loadUserData();
-                        Toast.makeText(UserProfileActivity.this,
-                                "Profile loaded successfully", Toast.LENGTH_SHORT).show();
-                    } else {
-                        String message = userResponse.getMessage() != null ?
-                                userResponse.getMessage() : "Unknown error";
-                        android.util.Log.e("UserProfile", "API Error: " + message);
-                        Toast.makeText(UserProfileActivity.this,
-                                "Error: " + message, Toast.LENGTH_LONG).show();
-                    }
+                    handleProfileResponse(response.body());
                 } else {
-                    try {
-                        String errorBody = response.errorBody() != null ?
-                                response.errorBody().string() : "Unknown error";
-                        android.util.Log.e("UserProfile", "HTTP Error " + response.code() + ": " + errorBody);
-                        Toast.makeText(UserProfileActivity.this,
-                                "Failed to load profile (Code: " + response.code() + ")", Toast.LENGTH_LONG).show();
-                    } catch (Exception e) {
-                        android.util.Log.e("UserProfile", "Error reading error body", e);
-                        Toast.makeText(UserProfileActivity.this,
-                                "Failed to load profile", Toast.LENGTH_SHORT).show();
-                    }
-
-                    // Load from preferences as fallback
-                    loadDataFromPreferences();
+                    handleProfileError(response);
                 }
             }
 
             @Override
             public void onFailure(Call<UserResponse> call, Throwable t) {
-                android.util.Log.e("UserProfile", "Network Failure", t);
-                android.util.Log.e("UserProfile", "Request URL: " + call.request().url());
-                android.util.Log.e("UserProfile", "Error Message: " + t.getMessage());
-
                 Toast.makeText(UserProfileActivity.this,
-                        "Network error: " + t.getMessage(), Toast.LENGTH_LONG).show();
-
-                // Load from preferences as fallback
+                        "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
                 loadDataFromPreferences();
             }
         });
+    }
+
+    private void handleProfileResponse(UserResponse userResponse) {
+        if (userResponse.isStatus() && userResponse.getData() != null) {
+            UserResponse.UserData userData = userResponse.getData();
+
+            fullName = userData.getName();
+            age = userData.getAge();
+            gender = userData.getGender();
+            contact = userData.getPhoneNumber();
+            email = userData.getEmail();
+
+            prefsManager.saveUserProfile(fullName, email, age, gender, contact);
+            loadUserData();
+            Toast.makeText(this, "Profile loaded successfully", Toast.LENGTH_SHORT).show();
+        } else {
+            String message = userResponse.getMessage() != null ?
+                    userResponse.getMessage() : "Unknown error";
+            Toast.makeText(this, "Error: " + message, Toast.LENGTH_SHORT).show();
+            loadDataFromPreferences();
+        }
+    }
+
+    private void handleProfileError(Response<UserResponse> response) {
+        Toast.makeText(this, "Failed to load profile (Code: " + response.code() + ")",
+                Toast.LENGTH_SHORT).show();
+        loadDataFromPreferences();
     }
 
     private void loadDataFromPreferences() {
@@ -217,72 +182,48 @@ public class UserProfileActivity extends AppCompatActivity {
     }
 
     private void loadUserData() {
-        try {
-            if (tvFullName != null) tvFullName.setText(fullName != null ? fullName : "N/A");
-            if (tvAge != null) tvAge.setText(age > 0 ? String.valueOf(age) : "N/A");
-            if (tvGender != null) tvGender.setText(gender != null ? capitalizeFirst(gender) : "N/A");
-            if (tvContact != null) tvContact.setText(contact != null ? contact : "N/A");
-            if (tvDiagnoses != null) tvDiagnoses.setText(String.valueOf(diagnoses));
-            if (tvConfidence != null) tvConfidence.setText(confidence + " confidence");
-        } catch (Exception e) {
-            Toast.makeText(this, "Error loading data", Toast.LENGTH_SHORT).show();
-            e.printStackTrace();
-        }
+        tvFullName.setText(fullName != null ? fullName : "N/A");
+        tvAge.setText(age > 0 ? String.valueOf(age) : "N/A");
+        tvGender.setText(gender != null ? capitalizeFirst(gender) : "N/A");
+        tvContact.setText(contact != null ? contact : "N/A");
+        tvDiagnoses.setText(String.valueOf(diagnoses));
+        tvConfidence.setText(confidence + " confidence");
     }
 
     private void fetchProfileImage() {
         String token = prefsManager.getBearerToken();
 
         if (token == null) {
-            android.util.Log.d("ProfileImage", "No token available");
             return;
         }
-
-        android.util.Log.d("ProfileImage", "Fetching profile image...");
 
         apiService.getProfileImage(token).enqueue(new Callback<ProfileImageResponse>() {
             @Override
             public void onResponse(Call<ProfileImageResponse> call, Response<ProfileImageResponse> response) {
-                android.util.Log.d("ProfileImage", "Response code: " + response.code());
-
                 if (response.isSuccessful() && response.body() != null) {
-                    ProfileImageResponse imageResponse = response.body();
-                    android.util.Log.d("ProfileImage", "Response success: " + imageResponse.isSuccess());
-
-                    if (imageResponse.isSuccess() && imageResponse.getData() != null) {
-                        String imageUrl = imageResponse.getData().getProfileImageUrl();
-                        android.util.Log.d("ProfileImage", "Image URL: " + imageUrl);
-
-                        if (imageUrl != null && !imageUrl.isEmpty() && profileImage != null) {
-                            android.util.Log.d("ProfileImage", "Loading image with Glide");
-                            Glide.with(UserProfileActivity.this)
-                                    .load(imageUrl)
-                                    .placeholder(R.drawable.default_profile)
-                                    .error(R.drawable.default_profile)
-                                    .into(profileImage);
-                        } else {
-                            android.util.Log.d("ProfileImage", "Image URL is null or empty");
-                        }
-                    } else {
-                        android.util.Log.d("ProfileImage", "No profile image data");
-                    }
-                } else {
-                    android.util.Log.d("ProfileImage", "Response not successful");
-                    try {
-                        String errorBody = response.errorBody() != null ?
-                                response.errorBody().string() : "No error body";
-                        android.util.Log.d("ProfileImage", "Error: " + errorBody);
-                    } catch (Exception e) {
-                        android.util.Log.e("ProfileImage", "Error reading error body", e);
-                    }
+                    handleImageResponse(response.body());
                 }
             }
 
             @Override
             public void onFailure(Call<ProfileImageResponse> call, Throwable t) {
-                android.util.Log.e("ProfileImage", "Failed to fetch image: " + t.getMessage(), t);
+                // Silent failure for profile image
             }
         });
+    }
+
+    private void handleImageResponse(ProfileImageResponse imageResponse) {
+        if (imageResponse.isSuccess() && imageResponse.getData() != null) {
+            String imageUrl = imageResponse.getData().getProfileImageUrl();
+
+            if (imageUrl != null && !imageUrl.isEmpty()) {
+                Glide.with(this)
+                        .load(imageUrl)
+                        .placeholder(R.drawable.default_profile)
+                        .error(R.drawable.default_profile)
+                        .into(profileImage);
+            }
+        }
     }
 
     private void uploadProfileImageToServer(Uri imageUri) {
@@ -294,185 +235,117 @@ public class UserProfileActivity extends AppCompatActivity {
         }
 
         try {
-            // Get file from URI
-            java.io.InputStream inputStream = getContentResolver().openInputStream(imageUri);
-            if (inputStream == null) {
-                Toast.makeText(this, "Cannot read image file", Toast.LENGTH_SHORT).show();
-                return;
-            }
+            File tempFile = createTempFileFromUri(imageUri);
+            MultipartBody.Part body = createImageMultipart(tempFile);
 
-            // Create temp file
-            java.io.File tempFile = new java.io.File(getCacheDir(), "profile_image_" + System.currentTimeMillis() + ".jpg");
-            java.io.FileOutputStream outputStream = new java.io.FileOutputStream(tempFile);
-
-            byte[] buffer = new byte[4096];
-            int bytesRead;
-            while ((bytesRead = inputStream.read(buffer)) != -1) {
-                outputStream.write(buffer, 0, bytesRead);
-            }
-
-            outputStream.close();
-            inputStream.close();
-
-            // Create RequestBody
-            okhttp3.RequestBody requestFile = okhttp3.RequestBody.create(
-                    okhttp3.MediaType.parse("image/*"),
-                    tempFile
-            );
-
-            okhttp3.MultipartBody.Part body = okhttp3.MultipartBody.Part.createFormData(
-                    "profile_image",
-                    tempFile.getName(),
-                    requestFile
-            );
-
-            // Show loading
             Toast.makeText(this, "Uploading image...", Toast.LENGTH_SHORT).show();
 
-            // Upload
-            apiService.uploadProfileImage(token, body).enqueue(new Callback<ProfileImageResponse>() {
-                @Override
-                public void onResponse(Call<ProfileImageResponse> call, Response<ProfileImageResponse> response) {
-                    // Delete temp file
-                    tempFile.delete();
-
-                    android.util.Log.d("ProfileImage", "Upload response code: " + response.code());
-
-                    if (response.isSuccessful() && response.body() != null) {
-                        ProfileImageResponse imageResponse = response.body();
-
-                        if (imageResponse.isSuccess()) {
-                            Toast.makeText(UserProfileActivity.this,
-                                    "Profile image updated successfully",
-                                    Toast.LENGTH_SHORT).show();
-
-                            // Refresh the profile image immediately
-                            fetchProfileImage();
-
-                            android.util.Log.d("ProfileImage", "Upload successful");
-                        } else {
-                            Toast.makeText(UserProfileActivity.this,
-                                    "Failed: " + imageResponse.getMessage(),
-                                    Toast.LENGTH_SHORT).show();
-                        }
-                    } else {
-                        Toast.makeText(UserProfileActivity.this,
-                                "Upload failed. Please try again.",
-                                Toast.LENGTH_SHORT).show();
-                        android.util.Log.e("ProfileImage", "Response code: " + response.code());
-                        try {
-                            String errorBody = response.errorBody() != null ?
-                                    response.errorBody().string() : "No error body";
-                            android.util.Log.e("ProfileImage", "Error: " + errorBody);
-                        } catch (Exception e) {
-                            android.util.Log.e("ProfileImage", "Error reading error body", e);
-                        }
-                    }
-                }
-
-                @Override
-                public void onFailure(Call<ProfileImageResponse> call, Throwable t) {
-                    tempFile.delete();
-                    Toast.makeText(UserProfileActivity.this,
-                            "Network error: " + t.getMessage(),
-                            Toast.LENGTH_SHORT).show();
-                    android.util.Log.e("ProfileImage", "Upload failed: " + t.getMessage(), t);
-                }
-            });
-
+            uploadImage(token, body, tempFile);
         } catch (Exception e) {
-            Toast.makeText(this, "Error preparing image: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-            android.util.Log.e("ProfileImage", "Error preparing image", e);
+            Toast.makeText(this, "Error preparing image: " + e.getMessage(),
+                    Toast.LENGTH_SHORT).show();
         }
     }
 
+    private File createTempFileFromUri(Uri imageUri) throws Exception {
+        InputStream inputStream = getContentResolver().openInputStream(imageUri);
+        if (inputStream == null) {
+            throw new Exception("Cannot read image file");
+        }
+
+        File tempFile = new File(getCacheDir(), "profile_image_" + System.currentTimeMillis() + ".jpg");
+        FileOutputStream outputStream = new FileOutputStream(tempFile);
+
+        byte[] buffer = new byte[4096];
+        int bytesRead;
+        while ((bytesRead = inputStream.read(buffer)) != -1) {
+            outputStream.write(buffer, 0, bytesRead);
+        }
+
+        outputStream.close();
+        inputStream.close();
+
+        return tempFile;
+    }
+
+    private MultipartBody.Part createImageMultipart(File file) {
+        RequestBody requestFile = RequestBody.create(MediaType.parse("image/*"), file);
+        return MultipartBody.Part.createFormData("profile_image", file.getName(), requestFile);
+    }
+
+    private void uploadImage(String token, MultipartBody.Part body, File tempFile) {
+        apiService.uploadProfileImage(token, body).enqueue(new Callback<ProfileImageResponse>() {
+            @Override
+            public void onResponse(Call<ProfileImageResponse> call, Response<ProfileImageResponse> response) {
+                tempFile.delete();
+
+                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
+                    Toast.makeText(UserProfileActivity.this,
+                            "Profile image updated successfully", Toast.LENGTH_SHORT).show();
+                    fetchProfileImage();
+                } else {
+                    Toast.makeText(UserProfileActivity.this,
+                            "Upload failed. Please try again.", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ProfileImageResponse> call, Throwable t) {
+                tempFile.delete();
+                Toast.makeText(UserProfileActivity.this,
+                        "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
 
     private String capitalizeFirst(String text) {
-        if (text == null || text.isEmpty()) return text;
+        if (text == null || text.isEmpty()) {
+            return text;
+        }
         return text.substring(0, 1).toUpperCase() + text.substring(1).toLowerCase();
     }
 
     private void setupClickListeners() {
-        if (btnBack != null) {
-            btnBack.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    finish();
-                }
-            });
-        }
+        btnBack.setOnClickListener(v -> finish());
 
-        if (btnEditImage != null) {
-            btnEditImage.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    openImagePicker();
-                }
-            });
-        }
+        btnEditImage.setOnClickListener(v -> openImagePicker());
 
-        if (btnEdit != null) {
-            btnEdit.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    try {
-                        Intent intent = new Intent(UserProfileActivity.this, EditProfileActivity.class);
-                        intent.putExtra("fullName", fullName);
-                        intent.putExtra("age", String.valueOf(age));
-                        intent.putExtra("gender", gender);
-                        intent.putExtra("contact", contact);
-                        intent.putExtra("email", email);
-                        startActivityForResult(intent, 100);
-                    } catch (Exception e) {
-                        Toast.makeText(UserProfileActivity.this, "EditProfileActivity not found", Toast.LENGTH_SHORT).show();
-                    }
-                }
-            });
-        }
+        btnEdit.setOnClickListener(v -> openEditProfile());
 
-        if (btnTerms != null) {
-            btnTerms.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    try {
-                        Intent intent = new Intent(UserProfileActivity.this, TermsActivity.class);
-                        startActivity(intent);
-                    } catch (Exception e) {
-                        Toast.makeText(UserProfileActivity.this, "TermsActivity not found", Toast.LENGTH_SHORT).show();
-                    }
-                }
-            });
-        }
+        btnTerms.setOnClickListener(v -> openTermsActivity());
 
-        if (btnPrivacy != null) {
-            btnPrivacy.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    try {
-                        Intent intent = new Intent(UserProfileActivity.this, PrivacyActivity.class);
-                        startActivity(intent);
-                    } catch (Exception e) {
-                        Toast.makeText(UserProfileActivity.this, "PrivacyActivity not found", Toast.LENGTH_SHORT).show();
-                    }
-                }
-            });
-        }
+        btnPrivacy.setOnClickListener(v -> openPrivacyActivity());
     }
 
     private void openImagePicker() {
-        try {
-            Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-            imagePickerLauncher.launch(intent);
-        } catch (Exception e) {
-            Toast.makeText(this, "Cannot open image picker", Toast.LENGTH_SHORT).show();
-        }
+        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        imagePickerLauncher.launch(intent);
+    }
+
+    private void openEditProfile() {
+        Intent intent = new Intent(this, EditProfileActivity.class);
+        intent.putExtra("fullName", fullName);
+        intent.putExtra("age", String.valueOf(age));
+        intent.putExtra("gender", gender);
+        intent.putExtra("contact", contact);
+        intent.putExtra("email", email);
+        startActivityForResult(intent, EDIT_PROFILE_REQUEST);
+    }
+
+    private void openTermsActivity() {
+        Intent intent = new Intent(this, TermsActivity.class);
+        startActivity(intent);
+    }
+
+    private void openPrivacyActivity() {
+        Intent intent = new Intent(this, PrivacyActivity.class);
+        startActivity(intent);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 100 && resultCode == RESULT_OK) {
-            // Refresh profile data and image after edit
+        if (requestCode == EDIT_PROFILE_REQUEST && resultCode == RESULT_OK) {
             fetchUserProfile();
             fetchProfileImage();
             Toast.makeText(this, "Profile updated successfully", Toast.LENGTH_SHORT).show();

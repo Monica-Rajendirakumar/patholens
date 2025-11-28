@@ -2,7 +2,6 @@ package com.example.patholens;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -25,6 +24,9 @@ import retrofit2.Response;
 public class EditProfileActivity extends AppCompatActivity {
 
     private static final String TAG = "EditProfileActivity";
+    private static final String[] GENDER_OPTIONS = {"Gender", "Male", "Female", "Other"};
+    private static final int MIN_AGE = 1;
+    private static final int MAX_AGE = 150;
 
     private ImageView btnBack;
     private EditText etFirstName, etLastName, etAge, etEmail, etPhone;
@@ -34,20 +36,21 @@ public class EditProfileActivity extends AppCompatActivity {
     private PrefsManager prefsManager;
     private ApiService apiService;
 
-    private String[] genderOptions = {"Gender", "Male", "Female", "Other"};
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_profile);
 
-        prefsManager = new PrefsManager(this);
-        apiService = RetrofitClient.getInstance().getApiService();
-
+        initializeDependencies();
         initializeViews();
         setupSpinner();
         loadExistingData();
         setupClickListeners();
+    }
+
+    private void initializeDependencies() {
+        prefsManager = new PrefsManager(this);
+        apiService = RetrofitClient.getInstance().getApiService();
     }
 
     private void initializeViews() {
@@ -66,7 +69,7 @@ public class EditProfileActivity extends AppCompatActivity {
         ArrayAdapter<String> adapter = new ArrayAdapter<>(
                 this,
                 android.R.layout.simple_spinner_item,
-                genderOptions
+                GENDER_OPTIONS
         );
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerGender.setAdapter(adapter);
@@ -75,45 +78,57 @@ public class EditProfileActivity extends AppCompatActivity {
     private void loadExistingData() {
         Intent intent = getIntent();
         if (intent != null) {
-            String fullName = intent.getStringExtra("fullName");
-            if (fullName != null && fullName.contains(" ")) {
-                String[] names = fullName.split(" ", 2);
-                etFirstName.setText(names[0]);
-                etLastName.setText(names.length > 1 ? names[1] : "");
-            } else {
-                etFirstName.setText(fullName);
-            }
+            loadNameData(intent.getStringExtra("fullName"));
+            loadAgeData(intent.getStringExtra("age"));
+            loadGenderData(intent.getStringExtra("gender"));
+            loadPhoneData(intent.getStringExtra("contact"));
+            loadEmailData(intent.getStringExtra("email"));
+        }
+    }
 
-            String age = intent.getStringExtra("age");
-            if (age != null && !age.equals("0")) {
-                etAge.setText(age);
-            }
+    private void loadNameData(String fullName) {
+        if (fullName != null && fullName.contains(" ")) {
+            String[] names = fullName.split(" ", 2);
+            etFirstName.setText(names[0]);
+            etLastName.setText(names.length > 1 ? names[1] : "");
+        } else if (fullName != null) {
+            etFirstName.setText(fullName);
+        }
+    }
 
-            String gender = intent.getStringExtra("gender");
-            if (gender != null) {
-                int position = getGenderPosition(gender);
-                spinnerGender.setSelection(position);
-            }
+    private void loadAgeData(String age) {
+        if (age != null && !age.equals("0")) {
+            etAge.setText(age);
+        }
+    }
 
-            String contact = intent.getStringExtra("contact");
-            if (contact != null && !contact.isEmpty()) {
-                // Remove country code if present
-                String phoneOnly = contact.replaceAll("^\\+\\d+\\s*", "").trim();
-                etPhone.setText(phoneOnly);
-            }
+    private void loadGenderData(String gender) {
+        if (gender != null) {
+            int position = getGenderPosition(gender);
+            spinnerGender.setSelection(position);
+        }
+    }
 
-            String email = intent.getStringExtra("email");
-            if (email != null) {
-                etEmail.setText(email);
-            }
+    private void loadPhoneData(String contact) {
+        if (contact != null && !contact.isEmpty()) {
+            String phoneOnly = contact.replaceAll("^\\+\\d+\\s*", "").trim();
+            etPhone.setText(phoneOnly);
+        }
+    }
+
+    private void loadEmailData(String email) {
+        if (email != null) {
+            etEmail.setText(email);
         }
     }
 
     private int getGenderPosition(String gender) {
-        if (gender == null) return 0;
+        if (gender == null) {
+            return 0;
+        }
 
-        for (int i = 0; i < genderOptions.length; i++) {
-            if (genderOptions[i].equalsIgnoreCase(gender)) {
+        for (int i = 0; i < GENDER_OPTIONS.length; i++) {
+            if (GENDER_OPTIONS[i].equalsIgnoreCase(gender)) {
                 return i;
             }
         }
@@ -122,17 +137,13 @@ public class EditProfileActivity extends AppCompatActivity {
 
     private void setupClickListeners() {
         btnBack.setOnClickListener(v -> finish());
-
         btnConfirm.setOnClickListener(v -> saveProfile());
+        btnChangePassword.setOnClickListener(v -> openChangePasswordActivity());
+    }
 
-        btnChangePassword.setOnClickListener(v -> {
-            try {
-                Intent intent = new Intent(EditProfileActivity.this, ChangePasswordActivity.class);
-                startActivity(intent);
-            } catch (Exception e) {
-                Toast.makeText(this, "ChangePasswordActivity not found", Toast.LENGTH_SHORT).show();
-            }
-        });
+    private void openChangePasswordActivity() {
+        Intent intent = new Intent(this, ChangePasswordActivity.class);
+        startActivity(intent);
     }
 
     private void saveProfile() {
@@ -143,158 +154,145 @@ public class EditProfileActivity extends AppCompatActivity {
         String phone = etPhone.getText().toString().trim();
         String gender = spinnerGender.getSelectedItem().toString();
 
-        // Validation
+        if (!validateInputs(firstName, ageStr, email, phone, gender)) {
+            return;
+        }
+
+        int age = Integer.parseInt(ageStr);
+        String fullName = firstName + (lastName.isEmpty() ? "" : " " + lastName);
+        String contact = phone;
+
+        updateProfileOnServer(fullName, email, age, gender.toLowerCase(), contact);
+    }
+
+    private boolean validateInputs(String firstName, String ageStr, String email,
+                                   String phone, String gender) {
         if (firstName.isEmpty()) {
             etFirstName.setError("First name is required");
             etFirstName.requestFocus();
-            return;
+            return false;
         }
 
         if (ageStr.isEmpty()) {
             etAge.setError("Age is required");
             etAge.requestFocus();
-            return;
+            return false;
         }
 
-        int age;
-        try {
-            age = Integer.parseInt(ageStr);
-            if (age < 1 || age > 150) {
-                etAge.setError("Please enter a valid age");
-                etAge.requestFocus();
-                return;
-            }
-        } catch (NumberFormatException e) {
+        if (!isValidAge(ageStr)) {
             etAge.setError("Please enter a valid age");
             etAge.requestFocus();
-            return;
+            return false;
         }
 
-        if (email.isEmpty() || !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+        if (!isValidEmail(email)) {
             etEmail.setError("Valid email is required");
             etEmail.requestFocus();
-            return;
+            return false;
         }
 
         if (phone.isEmpty()) {
             etPhone.setError("Phone number is required");
             etPhone.requestFocus();
-            return;
+            return false;
         }
 
         if (gender.equals("Gender")) {
             Toast.makeText(this, "Please select a gender", Toast.LENGTH_SHORT).show();
-            return;
+            return false;
         }
 
-        // Combine first and last name
-        String fullName = firstName + (lastName.isEmpty() ? "" : " " + lastName);
-        String contact = "" + phone;
-
-        // Call API to update profile
-        updateProfileOnServer(fullName, email, age, gender.toLowerCase(), contact);
+        return true;
     }
 
-    private void updateProfileOnServer(String fullName, String email, int age, String gender, String contact) {
-        String token = prefsManager.getBearerToken();
+    private boolean isValidAge(String ageStr) {
+        try {
+            int age = Integer.parseInt(ageStr);
+            return age >= MIN_AGE && age <= MAX_AGE;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
 
-        android.util.Log.d("EditProfile", "=== UPDATE PROFILE DEBUG ===");
-        android.util.Log.d("EditProfile", "Token: " + (token != null ? token.substring(0, Math.min(30, token.length())) + "..." : "NULL"));
-        android.util.Log.d("EditProfile", "Name: " + fullName);
-        android.util.Log.d("EditProfile", "Email: " + email);
-        android.util.Log.d("EditProfile", "Age: " + age);
-        android.util.Log.d("EditProfile", "Gender: " + gender);
-        android.util.Log.d("EditProfile", "Phone: " + contact);
+    private boolean isValidEmail(String email) {
+        return !email.isEmpty() &&
+                android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
+    }
+
+    private void updateProfileOnServer(String fullName, String email, int age,
+                                       String gender, String contact) {
+        String token = prefsManager.getBearerToken();
 
         if (token == null) {
             Toast.makeText(this, "Please login again", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Create request object
+        UpdateUserRequest request = createUpdateRequest(fullName, email, age, gender, contact);
+        setLoadingState(true);
+
+        apiService.updateAuthenticatedUser(token, request).enqueue(new Callback<UserResponse>() {
+            @Override
+            public void onResponse(Call<UserResponse> call, Response<UserResponse> response) {
+                setLoadingState(false);
+
+                if (response.isSuccessful() && response.body() != null) {
+                    handleUpdateResponse(response.body());
+                } else {
+                    handleUpdateError(response);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<UserResponse> call, Throwable t) {
+                setLoadingState(false);
+                Toast.makeText(EditProfileActivity.this,
+                        "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private UpdateUserRequest createUpdateRequest(String fullName, String email, int age,
+                                                  String gender, String contact) {
         UpdateUserRequest request = new UpdateUserRequest();
         request.setName(fullName);
         request.setEmail(email);
         request.setAge(age);
         request.setGender(gender);
         request.setPhoneNumber(contact);
+        return request;
+    }
 
-        // Show loading state
-        btnConfirm.setEnabled(false);
-        btnConfirm.setText("Updating...");
+    private void handleUpdateResponse(UserResponse userResponse) {
+        if (userResponse.isStatus() && userResponse.getData() != null) {
+            UserResponse.UserData userData = userResponse.getData();
 
-        apiService.updateAuthenticatedUser(token, request).enqueue(new Callback<UserResponse>() {
-            @Override
-            public void onResponse(Call<UserResponse> call, Response<UserResponse> response) {
-                btnConfirm.setEnabled(true);
-                btnConfirm.setText("Confirm");
+            prefsManager.saveUserProfile(
+                    userData.getName(),
+                    userData.getEmail(),
+                    userData.getAge(),
+                    userData.getGender(),
+                    userData.getPhoneNumber()
+            );
 
-                android.util.Log.d("EditProfile", "Response Code: " + response.code());
-                android.util.Log.d("EditProfile", "Response URL: " + call.request().url());
+            Toast.makeText(this, "Profile updated successfully", Toast.LENGTH_SHORT).show();
+            setResult(RESULT_OK);
+            finish();
+        } else {
+            String message = userResponse.getMessage() != null && !userResponse.getMessage().isEmpty()
+                    ? userResponse.getMessage()
+                    : "Failed to update profile";
+            Toast.makeText(this, "Error: " + message, Toast.LENGTH_SHORT).show();
+        }
+    }
 
-                if (response.isSuccessful() && response.body() != null) {
-                    UserResponse userResponse = response.body();
-                    android.util.Log.d("EditProfile", "Status: " + userResponse.isStatus());
+    private void handleUpdateError(Response<UserResponse> response) {
+        Toast.makeText(this, "Failed to update (Code: " + response.code() + ")",
+                Toast.LENGTH_SHORT).show();
+    }
 
-                    if (userResponse.isStatus() && userResponse.getData() != null) {
-                        UserResponse.UserData userData = userResponse.getData();
-
-                        android.util.Log.d("EditProfile", "Update Success!");
-                        android.util.Log.d("EditProfile", "New Name: " + userData.getName());
-
-                        // Save to preferences
-                        prefsManager.saveUserProfile(
-                                userData.getName(),
-                                userData.getEmail(),
-                                userData.getAge(),
-                                userData.getGender(),
-                                userData.getPhoneNumber()
-                        );
-
-                        Toast.makeText(EditProfileActivity.this,
-                                "Profile updated successfully", Toast.LENGTH_SHORT).show();
-
-                        // Return to previous activity
-                        setResult(RESULT_OK);
-                        finish();
-                    } else {
-                        String message = userResponse.getMessage();
-                        if (message == null || message.isEmpty()) {
-                            message = "Failed to update profile";
-                        }
-                        android.util.Log.e("EditProfile", "API Error: " + message);
-                        android.util.Log.e("EditProfile", "Errors: " + userResponse.getErrors());
-
-                        Toast.makeText(EditProfileActivity.this,
-                                "Error: " + message, Toast.LENGTH_LONG).show();
-                    }
-                } else {
-                    try {
-                        String errorBody = response.errorBody() != null ?
-                                response.errorBody().string() : "Unknown error";
-                        android.util.Log.e("EditProfile", "HTTP Error " + response.code() + ": " + errorBody);
-                        Toast.makeText(EditProfileActivity.this,
-                                "Failed to update (Code: " + response.code() + ")", Toast.LENGTH_LONG).show();
-                    } catch (Exception e) {
-                        android.util.Log.e("EditProfile", "Error reading error body", e);
-                        Toast.makeText(EditProfileActivity.this,
-                                "Failed to update profile", Toast.LENGTH_SHORT).show();
-                    }
-                }
-            }
-
-            @Override
-            public void onFailure(Call<UserResponse> call, Throwable t) {
-                btnConfirm.setEnabled(true);
-                btnConfirm.setText("Confirm");
-
-                android.util.Log.e("EditProfile", "Network Failure", t);
-                android.util.Log.e("EditProfile", "Request URL: " + call.request().url());
-                android.util.Log.e("EditProfile", "Error Message: " + t.getMessage());
-
-                Toast.makeText(EditProfileActivity.this,
-                        "Network error: " + t.getMessage(), Toast.LENGTH_LONG).show();
-            }
-        });
+    private void setLoadingState(boolean isLoading) {
+        btnConfirm.setEnabled(!isLoading);
+        btnConfirm.setText(isLoading ? "Updating..." : "Confirm");
     }
 }

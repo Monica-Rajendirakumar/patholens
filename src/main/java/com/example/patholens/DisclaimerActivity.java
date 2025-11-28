@@ -8,6 +8,9 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class DisclaimerActivity extends AppCompatActivity {
 
+    private static final float BUTTON_ALPHA_ENABLED = 1.0f;
+    private static final float BUTTON_ALPHA_DISABLED = 0.5f;
+
     private CheckBox checkboxUnderstand;
     private Button btnAgree;
 
@@ -16,24 +19,31 @@ public class DisclaimerActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_disclaimer);
 
+        initializeViews();
+        setupListeners();
+    }
+
+    private void initializeViews() {
         checkboxUnderstand = findViewById(R.id.checkboxUnderstand);
         btnAgree = findViewById(R.id.btnAgree);
+    }
 
-        // Enable button only when checkbox is checked
+    private void setupListeners() {
         checkboxUnderstand.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            btnAgree.setEnabled(isChecked);
-            if (isChecked) {
-                btnAgree.setAlpha(1.0f);
-            } else {
-                btnAgree.setAlpha(0.5f);
-            }
+            updateButtonState(isChecked);
         });
 
-        // Navigate to login when agree is clicked
-        btnAgree.setOnClickListener(v -> {
-            Intent intent = new Intent(DisclaimerActivity.this, LoginActivity.class);
-            startActivity(intent);
-            finish();
-        });
+        btnAgree.setOnClickListener(v -> navigateToLogin());
+    }
+
+    private void updateButtonState(boolean isEnabled) {
+        btnAgree.setEnabled(isEnabled);
+        btnAgree.setAlpha(isEnabled ? BUTTON_ALPHA_ENABLED : BUTTON_ALPHA_DISABLED);
+    }
+
+    private void navigateToLogin() {
+        Intent intent = new Intent(this, LoginActivity.class);
+        startActivity(intent);
+        finish();
     }
 }

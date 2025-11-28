@@ -29,6 +29,8 @@ import retrofit2.Response;
 public class DiagnosisHistoryActivity extends AppCompatActivity {
 
     private static final String TAG = "DiagnosisHistory";
+    private static final String STATUS_SUCCESS = "success";
+    private static final String GENDER_FEMALE = "female";
 
     private ImageView btnBack;
     private LinearLayout diagnosisContainer;
@@ -57,7 +59,6 @@ public class DiagnosisHistoryActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progressBar);
         tvEmptyState = findViewById(R.id.tvEmptyState);
 
-        // Set gravity correctly
         tvEmptyState.setGravity(Gravity.CENTER);
     }
 
@@ -66,65 +67,85 @@ public class DiagnosisHistoryActivity extends AppCompatActivity {
     }
 
     private void loadDiagnosisHistory() {
+        if (!validateUserSession()) {
+            return;
+        }
+
         showLoading(true);
 
         String userId = String.valueOf(prefsManager.getUserId());
         String token = prefsManager.getBearerToken();
-
-        if (token == null) {
-            Toast.makeText(this, "Please login again", Toast.LENGTH_SHORT).show();
-            finish();
-            return;
-        }
 
         Log.d(TAG, "Fetching history for user ID: " + userId);
 
         RetrofitClient.getInstance()
                 .getApiService()
                 .getUserPatientHistory(userId, token)
-                .enqueue(new Callback<PatientResponse>() {
-                    @Override
-                    public void onResponse(Call<PatientResponse> call, Response<PatientResponse> response) {
-                        showLoading(false);
+                .enqueue(createHistoryCallback());
+    }
 
-                        if (response.isSuccessful() && response.body() != null) {
-                            PatientResponse patientResponse = response.body();
+    private boolean validateUserSession() {
+        String token = prefsManager.getBearerToken();
 
-                            if ("success".equalsIgnoreCase(patientResponse.getStatus())) {
-                                // Get the list directly from data
-                                patientList = patientResponse.getData();
+        if (token == null) {
+            Toast.makeText(this, "Please login again", Toast.LENGTH_SHORT).show();
+            finish();
+            return false;
+        }
 
-                                if (patientList != null && !patientList.isEmpty()) {
-                                    Log.d(TAG, "Loaded " + patientList.size() + " patient records");
-                                    displayDiagnosisHistory();
-                                } else {
-                                    Log.d(TAG, "No patient records found");
-                                    showEmptyState();
-                                }
-                            } else {
-                                String errorMsg = patientResponse.getMessage() != null ?
-                                        patientResponse.getMessage() : "Failed to load history";
-                                Toast.makeText(DiagnosisHistoryActivity.this,
-                                        errorMsg, Toast.LENGTH_SHORT).show();
-                                showEmptyState();
-                            }
-                        } else {
-                            Log.e(TAG, "Response failed: " + response.code());
-                            Toast.makeText(DiagnosisHistoryActivity.this,
-                                    "Failed to load history", Toast.LENGTH_SHORT).show();
-                            showEmptyState();
-                        }
-                    }
+        return true;
+    }
 
-                    @Override
-                    public void onFailure(Call<PatientResponse> call, Throwable t) {
-                        showLoading(false);
-                        Log.e(TAG, "Network error: " + t.getMessage(), t);
-                        Toast.makeText(DiagnosisHistoryActivity.this,
-                                "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-                        showEmptyState();
-                    }
-                });
+    private Callback<PatientResponse> createHistoryCallback() {
+        return new Callback<PatientResponse>() {
+            @Override
+            public void onResponse(Call<PatientResponse> call, Response<PatientResponse> response) {
+                showLoading(false);
+                handleHistoryResponse(response);
+            }
+
+            @Override
+            public void onFailure(Call<PatientResponse> call, Throwable t) {
+                showLoading(false);
+                handleHistoryFailure(t);
+            }
+        };
+    }
+
+    private void handleHistoryResponse(Response<PatientResponse> response) {
+        if (response.isSuccessful() && response.body() != null) {
+            PatientResponse patientResponse = response.body();
+            processPatientResponse(patientResponse);
+        } else {
+            Log.e(TAG, "Response failed: " + response.code());
+            Toast.makeText(this, "Failed to load history", Toast.LENGTH_SHORT).show();
+            showEmptyState();
+        }
+    }
+
+    private void processPatientResponse(PatientResponse patientResponse) {
+        if (STATUS_SUCCESS.equalsIgnoreCase(patientResponse.getStatus())) {
+            patientList = patientResponse.getData();
+
+            if (patientList != null && !patientList.isEmpty()) {
+                Log.d(TAG, "Loaded " + patientList.size() + " patient records");
+                displayDiagnosisHistory();
+            } else {
+                Log.d(TAG, "No patient records found");
+                showEmptyState();
+            }
+        } else {
+            String errorMsg = patientResponse.getMessage() != null ?
+                    patientResponse.getMessage() : "Failed to load history";
+            Toast.makeText(this, errorMsg, Toast.LENGTH_SHORT).show();
+            showEmptyState();
+        }
+    }
+
+    private void handleHistoryFailure(Throwable t) {
+        Log.e(TAG, "Network error: " + t.getMessage(), t);
+        Toast.makeText(this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+        showEmptyState();
     }
 
     private void displayDiagnosisHistory() {
@@ -136,6 +157,10 @@ public class DiagnosisHistoryActivity extends AppCompatActivity {
             diagnosisContainer.addView(cardView);
         }
 
+        showHistoryContent();
+    }
+
+    private void showHistoryContent() {
         tvEmptyState.setVisibility(View.GONE);
         scrollView.setVisibility(View.VISIBLE);
     }
@@ -144,41 +169,55 @@ public class DiagnosisHistoryActivity extends AppCompatActivity {
         View cardView = LayoutInflater.from(this)
                 .inflate(R.layout.item_diagnosis_card, diagnosisContainer, false);
 
-        // Find views in the card
+        populateCardViews(cardView, patient, position);
+        setupCardClickListener(cardView, patient);
+
+        return cardView;
+    }
+
+    private void populateCardViews(View cardView, Patient patient, int position) {
         TextView tvDiagnosisTitle = cardView.findViewById(R.id.tvDiagnosisTitle);
         TextView tvDate = cardView.findViewById(R.id.tvDate);
         TextView tvPatientName = cardView.findViewById(R.id.tvPatientName);
         TextView tvAge = cardView.findViewById(R.id.tvAge);
         TextView tvPemphigus = cardView.findViewById(R.id.tvPemphigus);
         TextView tvConfidence = cardView.findViewById(R.id.tvConfidence);
-        LinearLayout btnReport = cardView.findViewById(R.id.btnReport);
         ImageView ivGenderIcon = cardView.findViewById(R.id.ivGenderIcon);
 
-        // Set data
         tvDiagnosisTitle.setText("Diagnosis " + position);
         tvDate.setText(patient.getFormattedDate());
         tvPatientName.setText("Name: " + patient.getPatientName());
         tvAge.setText("Age: " + patient.getAge());
 
+        populateDiagnosisResult(tvPemphigus, tvConfidence, patient);
+        setGenderIcon(ivGenderIcon, patient.getGender());
+    }
+
+    private void populateDiagnosisResult(TextView tvPemphigus, TextView tvConfidence, Patient patient) {
         boolean isPemphigus = patient.isPemphigus();
         tvPemphigus.setText("Pemphigus: " + (isPemphigus ? "Yes" : "No"));
         tvConfidence.setText("Confidence: " + String.format("%.0f%%", patient.getConfidence()));
+    }
 
-        // Set gender icon
-        if ("female".equalsIgnoreCase(patient.getGender())) {
-            ivGenderIcon.setImageResource(R.drawable.ic_female);
-        } else {
-            ivGenderIcon.setImageResource(R.drawable.ic_male);
-        }
+    private void setGenderIcon(ImageView ivGenderIcon, String gender) {
+        int iconResource = GENDER_FEMALE.equalsIgnoreCase(gender) ?
+                R.drawable.ic_female :
+                R.drawable.ic_male;
+        ivGenderIcon.setImageResource(iconResource);
+    }
 
-        // Set click listener for report button
+    private void setupCardClickListener(View cardView, Patient patient) {
+        LinearLayout btnReport = cardView.findViewById(R.id.btnReport);
         btnReport.setOnClickListener(v -> openReport(patient));
-
-        return cardView;
     }
 
     private void openReport(Patient patient) {
-        Intent intent = new Intent(DiagnosisHistoryActivity.this, DiagnosisReportActivity.class);
+        Intent intent = createReportIntent(patient);
+        startActivity(intent);
+    }
+
+    private Intent createReportIntent(Patient patient) {
+        Intent intent = new Intent(this, DiagnosisReportActivity.class);
 
         intent.putExtra("diagnosis_id", "Diagnosis Report #" + patient.getId());
         intent.putExtra("name", patient.getPatientName());
@@ -190,7 +229,7 @@ public class DiagnosisHistoryActivity extends AppCompatActivity {
         intent.putExtra("contact_number", patient.getContactNumber());
         intent.putExtra("image_url", patient.getDiagnosisingImage());
 
-        startActivity(intent);
+        return intent;
     }
 
     private void showLoading(boolean show) {

@@ -9,17 +9,19 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import com.google.android.material.textfield.TextInputEditText;
 
+import com.example.patholens.api.RetrofitClient;
 import com.example.patholens.modules.ResetPasswordRequest;
 import com.example.patholens.modules.ResetPasswordResponse;
-import com.example.patholens.api.RetrofitClient;
+import com.google.android.material.textfield.TextInputEditText;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
 public class ResetPasswordActivity extends AppCompatActivity {
+
+    private static final int MIN_PASSWORD_LENGTH = 8;
 
     private TextInputEditText etNewPassword;
     private TextInputEditText etConfirmPassword;
@@ -35,35 +37,43 @@ public class ResetPasswordActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_reset_password);
 
-        // Get email from intent
         userEmail = getIntent().getStringExtra("email");
 
-        if (userEmail == null || userEmail.isEmpty()) {
+        if (!isValidEmail()) {
             Toast.makeText(this, "Invalid session. Please try again.", Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
 
-        // Initialize views
+        initializeViews();
+        setupListeners();
+    }
+
+    private boolean isValidEmail() {
+        return userEmail != null && !userEmail.isEmpty();
+    }
+
+    private void initializeViews() {
         etNewPassword = findViewById(R.id.etNewPassword);
         etConfirmPassword = findViewById(R.id.etConfirmPassword);
         btnResetPassword = findViewById(R.id.btnResetPassword);
         tvErrorMessage = findViewById(R.id.tvErrorMessage);
         tvBackToLogin = findViewById(R.id.tvBackToLogin);
+    }
 
+    private void setupListeners() {
         btnResetPassword.setOnClickListener(v -> {
+            tvErrorMessage.setVisibility(View.GONE);
+
             String newPassword = etNewPassword.getText().toString().trim();
             String confirmPassword = etConfirmPassword.getText().toString().trim();
-            tvErrorMessage.setVisibility(View.GONE);
 
             if (validatePasswords(newPassword, confirmPassword)) {
                 resetPassword(newPassword, confirmPassword);
             }
         });
 
-        tvBackToLogin.setOnClickListener(v -> {
-            navigateToLogin();
-        });
+        tvBackToLogin.setOnClickListener(v -> navigateToLogin());
     }
 
     private boolean validatePasswords(String password, String confirmPassword) {
@@ -72,8 +82,8 @@ public class ResetPasswordActivity extends AppCompatActivity {
             return false;
         }
 
-        if (password.length() < 8) {
-            showError("Password must be at least 8 characters");
+        if (password.length() < MIN_PASSWORD_LENGTH) {
+            showError("Password must be at least " + MIN_PASSWORD_LENGTH + " characters");
             return false;
         }
 
@@ -91,32 +101,25 @@ public class ResetPasswordActivity extends AppCompatActivity {
     }
 
     private void resetPassword(String password, String confirmPassword) {
-        if (isLoading) return;
+        if (isLoading) {
+            return;
+        }
 
-        isLoading = true;
-        btnResetPassword.setEnabled(false);
-        btnResetPassword.setText("Resetting...");
+        setLoadingState(true);
 
         ResetPasswordRequest request = new ResetPasswordRequest(userEmail, password, confirmPassword);
 
-        Call<ResetPasswordResponse> call = RetrofitClient.getInstance().getApiService().resetPassword(request);
+        Call<ResetPasswordResponse> call = RetrofitClient.getInstance()
+                .getApiService()
+                .resetPassword(request);
+
         call.enqueue(new Callback<ResetPasswordResponse>() {
             @Override
             public void onResponse(Call<ResetPasswordResponse> call, Response<ResetPasswordResponse> response) {
-                isLoading = false;
-                btnResetPassword.setEnabled(true);
-                btnResetPassword.setText("Reset Password");
+                setLoadingState(false);
 
                 if (response.isSuccessful() && response.body() != null) {
-                    ResetPasswordResponse resetResponse = response.body();
-
-                    if (resetResponse.isSuccess()) {
-                        Toast.makeText(ResetPasswordActivity.this,
-                                resetResponse.getMessage(), Toast.LENGTH_LONG).show();
-                        navigateToLogin();
-                    } else {
-                        showError(resetResponse.getMessage());
-                    }
+                    handleResetResponse(response.body());
                 } else {
                     showError("Failed to reset password. Please try again.");
                 }
@@ -124,16 +127,29 @@ public class ResetPasswordActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<ResetPasswordResponse> call, Throwable t) {
-                isLoading = false;
-                btnResetPassword.setEnabled(true);
-                btnResetPassword.setText("Reset Password");
+                setLoadingState(false);
                 showError("Network error. Please check your connection.");
             }
         });
     }
 
+    private void handleResetResponse(ResetPasswordResponse resetResponse) {
+        if (resetResponse.isSuccess()) {
+            Toast.makeText(this, resetResponse.getMessage(), Toast.LENGTH_LONG).show();
+            navigateToLogin();
+        } else {
+            showError(resetResponse.getMessage());
+        }
+    }
+
+    private void setLoadingState(boolean loading) {
+        isLoading = loading;
+        btnResetPassword.setEnabled(!loading);
+        btnResetPassword.setText(loading ? "Resetting..." : "Reset Password");
+    }
+
     private void navigateToLogin() {
-        Intent intent = new Intent(ResetPasswordActivity.this, LoginActivity.class);
+        Intent intent = new Intent(this, LoginActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         finish();
@@ -146,7 +162,6 @@ public class ResetPasswordActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        // Prevent going back to OTP verification
         navigateToLogin();
     }
 }

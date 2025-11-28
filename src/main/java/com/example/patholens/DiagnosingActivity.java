@@ -7,17 +7,23 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.OpenableColumns;
+import android.util.Log;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
+
 import org.json.JSONObject;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.concurrent.TimeUnit;
+
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
@@ -27,27 +33,17 @@ import okhttp3.Response;
 
 public class DiagnosingActivity extends AppCompatActivity {
 
-    // UI Components
-    private ProgressBar progressBar;
-    private TextView messageText;
-    private TextView percentText;
-    private Handler handler;
-    private int progressStatus = 0;
-
-    // Patient information from previous activity
-    private String userId;
-    private boolean isForMe;
-    private String patientName;
-    private String patientAge;
-    private String patientPhone;
-    private String patientGender;
-    private String imageUriString;
-
-    // API Configuration
+    private static final String TAG = "DiagnosingActivity";
     private static final String API_URL = "http://192.168.0.110:8000/api/v1/classify-image";
+    private static final int API_TIMEOUT_SECONDS = 30;
+    private static final int PROGRESS_TARGET = 90;
+    private static final int PROGRESS_MAX = 100;
+    private static final int PROGRESS_DELAY_MS = 40;
+    private static final int MESSAGE_DELAY_MS = 1800;
+    private static final int FADE_DURATION_MS = 300;
+    private static final int NAVIGATION_DELAY_MS = 300;
 
-    // Cheering messages
-    private String[] cheeringMessages = {
+    private static final String[] CHEERING_MESSAGES = {
             "Analyzing image patterns...",
             "Processing medical data...",
             "Our AI is working hard...",
@@ -56,37 +52,45 @@ public class DiagnosingActivity extends AppCompatActivity {
             "Getting your results ready...",
             "Finalizing diagnosis..."
     };
-    private int currentMessageIndex = 0;
 
-    // API Response data
+    private ProgressBar progressBar;
+    private TextView messageText;
+    private TextView percentText;
+    private Handler handler;
+
+    private String userId;
+    private boolean isForMe;
+    private String patientName;
+    private String patientAge;
+    private String patientPhone;
+    private String patientGender;
+    private String imageUriString;
+
     private String diagnosisLabel = "";
     private double confidence = 0.0;
     private boolean apiCallCompleted = false;
+    private int progressStatus = 0;
+    private int currentMessageIndex = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_diagnosing);
 
-        // Initialize views
+        initializeViews();
+        receiveDataFromPreviousActivity();
+        startDiagnosing();
+    }
+
+    private void initializeViews() {
         progressBar = findViewById(R.id.progressBar);
         messageText = findViewById(R.id.messageText);
         percentText = findViewById(R.id.percentText);
         handler = new Handler();
-
-        // Receive data from ImageUploadActivity
-        receiveDataFromPreviousActivity();
-
-        // Start the diagnosis process
-        startDiagnosing();
     }
 
-    /**
-     * Receive all data passed from ImageUploadActivity
-     */
     private void receiveDataFromPreviousActivity() {
         Intent intent = getIntent();
-
         userId = intent.getStringExtra("user_id");
         isForMe = intent.getBooleanExtra("isForMe", true);
         patientName = intent.getStringExtra("patientName");
@@ -97,270 +101,283 @@ public class DiagnosingActivity extends AppCompatActivity {
     }
 
     private void startDiagnosing() {
-        // Start message animation
         startMessageAnimation();
-
-        // Start API call in background thread
         callClassificationAPI();
-
-        // Start progress bar animation
         startProgressAnimation();
     }
 
-    /**
-     * Call the Laravel classification API
-     */
     private void callClassificationAPI() {
         new Thread(() -> {
             try {
                 Uri imageUri = Uri.parse(imageUriString);
-
-                // Convert URI to File
                 File imageFile = getFileFromUri(imageUri);
+
                 if (imageFile == null) {
-                    runOnUiThread(() -> {
-                        Toast.makeText(this, "Failed to process image", Toast.LENGTH_SHORT).show();
-                        finish();
-                    });
+                    handleFileError();
                     return;
                 }
 
-                // Create multipart request
-                OkHttpClient client = new OkHttpClient.Builder()
-                        .connectTimeout(30, java.util.concurrent.TimeUnit.SECONDS)
-                        .readTimeout(30, java.util.concurrent.TimeUnit.SECONDS)
-                        .build();
-
-                RequestBody requestBody = new MultipartBody.Builder()
-                        .setType(MultipartBody.FORM)
-                        .addFormDataPart("image", imageFile.getName(),
-                                RequestBody.create(MediaType.parse("image/*"), imageFile))
-                        .build();
-
-                Request request = new Request.Builder()
-                        .url(API_URL)
-                        .post(requestBody)
-                        .addHeader("Accept", "application/json")
-                        .build();
-
-                // Execute request
-                Response response = client.newCall(request).execute();
+                Response response = executeApiRequest(imageFile);
                 String responseBody = response.body().string();
 
-                // DEBUG: Log the full response
-                android.util.Log.e("API_RESPONSE", "Status Code: " + response.code());
-                android.util.Log.e("API_RESPONSE", "Body: " + responseBody);
+                logApiResponse(response.code(), responseBody);
 
                 if (response.isSuccessful()) {
-                    // Parse JSON response
-                    JSONObject jsonResponse = new JSONObject(responseBody);
-
-                    // DEBUG: Log parsed JSON
-                    android.util.Log.e("API_RESPONSE", "JSON Status: " + jsonResponse.optString("status", "MISSING"));
-
-                    String status = jsonResponse.optString("status", "");
-
-                    if ("success".equals(status)) {
-                        JSONObject data = jsonResponse.getJSONObject("data");
-                        diagnosisLabel = data.getString("label");
-                        confidence = data.getDouble("confidence");
-                        apiCallCompleted = true;
-
-                        android.util.Log.e("API_RESPONSE", "Success! Label: " + diagnosisLabel + ", Confidence: " + confidence);
-                    } else if ("error".equals(status)) {
-                        // Handle error response (e.g., NoneType, invalid image, non-mouth image)
-                        String errorMessage = jsonResponse.optString("message", "Unable to process image");
-                        android.util.Log.e("API_RESPONSE", "API Error: " + errorMessage);
-
-                        // Set special values for invalid/unrecognizable images
-                        diagnosisLabel = "Image Not Recognized";
-                        confidence = 0.0;
-                        apiCallCompleted = true;
-
-                        runOnUiThread(() -> {
-                            Toast.makeText(DiagnosingActivity.this,
-                                    "Unable to recognize the image. Please upload a clear image of the mouth area.",
-                                    Toast.LENGTH_LONG).show();
-                        });
-                    } else {
-                        // Unknown status
-                        String errorMessage = jsonResponse.optString("message", "Unknown error");
-                        android.util.Log.e("API_RESPONSE", "Unknown Status: " + errorMessage);
-                        throw new Exception("API returned unexpected status: " + errorMessage);
-                    }
+                    handleSuccessfulApiResponse(responseBody);
                 } else {
-                    android.util.Log.e("API_RESPONSE", "HTTP Error: " + response.code() + " - " + responseBody);
                     throw new Exception("API call failed: " + response.code());
                 }
 
-                // Clean up temporary file
                 imageFile.delete();
 
             } catch (Exception e) {
-                e.printStackTrace();
-                android.util.Log.e("API_ERROR", "Exception: " + e.getMessage(), e);
-
-                runOnUiThread(() -> {
-                    Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
-
-                    // Use fallback mock data on error
-                    diagnosisLabel = "Unable to classify";
-                    confidence = 0.0;
-                    apiCallCompleted = true;
-                });
+                handleApiError(e);
             }
         }).start();
     }
 
-    /**
-     * Convert URI to File for uploading
-     */
+    private Response executeApiRequest(File imageFile) throws Exception {
+        OkHttpClient client = new OkHttpClient.Builder()
+                .connectTimeout(API_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                .readTimeout(API_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                .build();
+
+        RequestBody requestBody = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("image", imageFile.getName(),
+                        RequestBody.create(MediaType.parse("image/*"), imageFile))
+                .build();
+
+        Request request = new Request.Builder()
+                .url(API_URL)
+                .post(requestBody)
+                .addHeader("Accept", "application/json")
+                .build();
+
+        return client.newCall(request).execute();
+    }
+
+    private void handleSuccessfulApiResponse(String responseBody) throws Exception {
+        JSONObject jsonResponse = new JSONObject(responseBody);
+        String status = jsonResponse.optString("status", "");
+
+        Log.d(TAG, "API Status: " + status);
+
+        if ("success".equals(status)) {
+            parseSuccessResponse(jsonResponse);
+        } else if ("error".equals(status)) {
+            handleErrorResponse(jsonResponse);
+        } else {
+            String errorMessage = jsonResponse.optString("message", "Unknown error");
+            throw new Exception("API returned unexpected status: " + errorMessage);
+        }
+    }
+
+    private void parseSuccessResponse(JSONObject jsonResponse) throws Exception {
+        JSONObject data = jsonResponse.getJSONObject("data");
+        diagnosisLabel = data.getString("label");
+        confidence = data.getDouble("confidence");
+        apiCallCompleted = true;
+
+        Log.d(TAG, "Classification successful - Label: " + diagnosisLabel + ", Confidence: " + confidence);
+    }
+
+    private void handleErrorResponse(JSONObject jsonResponse) {
+        String errorMessage = jsonResponse.optString("message", "Unable to process image");
+        Log.e(TAG, "API Error: " + errorMessage);
+
+        diagnosisLabel = "Image Not Recognized";
+        confidence = 0.0;
+        apiCallCompleted = true;
+
+        runOnUiThread(() -> {
+            Toast.makeText(this,
+                    "Unable to recognize the image. Please upload a clear image of the mouth area.",
+                    Toast.LENGTH_LONG).show();
+        });
+    }
+
+    private void handleFileError() {
+        runOnUiThread(() -> {
+            Toast.makeText(this, "Failed to process image", Toast.LENGTH_SHORT).show();
+            finish();
+        });
+    }
+
+    private void handleApiError(Exception e) {
+        Log.e(TAG, "API Error: " + e.getMessage(), e);
+
+        runOnUiThread(() -> {
+            Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            diagnosisLabel = "Unable to classify";
+            confidence = 0.0;
+            apiCallCompleted = true;
+        });
+    }
+
+    private void logApiResponse(int statusCode, String responseBody) {
+        Log.d(TAG, "API Status Code: " + statusCode);
+        Log.d(TAG, "API Response Body: " + responseBody);
+    }
+
     private File getFileFromUri(Uri uri) {
         try {
             ContentResolver contentResolver = getContentResolver();
+            String fileName = getFileNameFromUri(uri, contentResolver);
+            File tempFile = new File(getCacheDir(), fileName);
 
-            // Get file name
-            String fileName = "temp_image.jpg";
-            Cursor cursor = contentResolver.query(uri, null, null, null, null);
+            copyUriToFile(uri, tempFile, contentResolver);
+
+            return tempFile;
+
+        } catch (Exception e) {
+            Log.e(TAG, "Error converting URI to File", e);
+            return null;
+        }
+    }
+
+    private String getFileNameFromUri(Uri uri, ContentResolver contentResolver) {
+        String fileName = "temp_image.jpg";
+
+        try (Cursor cursor = contentResolver.query(uri, null, null, null, null)) {
             if (cursor != null && cursor.moveToFirst()) {
                 int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
                 if (nameIndex != -1) {
                     fileName = cursor.getString(nameIndex);
                 }
-                cursor.close();
             }
+        }
 
-            // Create temporary file
-            File tempFile = new File(getCacheDir(), fileName);
+        return fileName;
+    }
 
-            // Copy URI content to file
-            InputStream inputStream = contentResolver.openInputStream(uri);
-            OutputStream outputStream = new FileOutputStream(tempFile);
+    private void copyUriToFile(Uri uri, File tempFile, ContentResolver contentResolver) throws Exception {
+        try (InputStream inputStream = contentResolver.openInputStream(uri);
+             OutputStream outputStream = new FileOutputStream(tempFile)) {
 
             byte[] buffer = new byte[4096];
             int bytesRead;
             while ((bytesRead = inputStream.read(buffer)) != -1) {
                 outputStream.write(buffer, 0, bytesRead);
             }
-
-            outputStream.close();
-            inputStream.close();
-
-            return tempFile;
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
         }
     }
 
-    /**
-     * Animate progress bar - waits for API response
-     */
     private void startProgressAnimation() {
         new Thread(() -> {
-            // Progress moves to 90% relatively quickly
-            while (progressStatus < 90) {
-                progressStatus += 1;
-
-                final int currentProgress = progressStatus;
-                handler.post(() -> {
-                    progressBar.setProgress(currentProgress);
-                    percentText.setText(currentProgress + "%");
-                });
-
-                try {
-                    Thread.sleep(40); // Reaches 90% in ~3.6 seconds
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            // Wait for API call to complete before going to 100%
-            while (!apiCallCompleted) {
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            // Complete final 10% quickly
-            while (progressStatus <= 100) {
-                progressStatus += 1;
-
-                final int currentProgress = progressStatus;
-                handler.post(() -> {
-                    progressBar.setProgress(currentProgress);
-                    percentText.setText(currentProgress + "%");
-                });
-
-                try {
-                    Thread.sleep(20);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            // Navigate to result screen
-            handler.postDelayed(() -> {
-                Intent intent = new Intent(DiagnosingActivity.this, ResultActivity.class);
-
-                // Pass patient information
-                intent.putExtra("user_id", userId);
-                intent.putExtra("isForMe", isForMe);
-                intent.putExtra("patientName", patientName);
-                intent.putExtra("patientAge", patientAge);
-                intent.putExtra("patientPhone", patientPhone);
-                intent.putExtra("patientGender", patientGender);
-
-                // Pass diagnosis results
-                intent.putExtra("diagnosisLabel", diagnosisLabel);
-                intent.putExtra("confidence", confidence);
-
-                startActivity(intent);
-                finish();
-            }, 300);
+            animateProgressToTarget();
+            waitForApiCompletion();
+            completeProgress();
+            navigateToResult();
         }).start();
     }
 
-    /**
-     * Animate message switching
-     */
+    private void animateProgressToTarget() {
+        while (progressStatus < PROGRESS_TARGET) {
+            progressStatus++;
+            updateProgressUI(progressStatus);
+
+            try {
+                Thread.sleep(PROGRESS_DELAY_MS);
+            } catch (InterruptedException e) {
+                Log.e(TAG, "Progress animation interrupted", e);
+            }
+        }
+    }
+
+    private void waitForApiCompletion() {
+        while (!apiCallCompleted) {
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                Log.e(TAG, "API wait interrupted", e);
+            }
+        }
+    }
+
+    private void completeProgress() {
+        while (progressStatus <= PROGRESS_MAX) {
+            progressStatus++;
+            updateProgressUI(progressStatus);
+
+            try {
+                Thread.sleep(20);
+            } catch (InterruptedException e) {
+                Log.e(TAG, "Progress completion interrupted", e);
+            }
+        }
+    }
+
+    private void updateProgressUI(int progress) {
+        handler.post(() -> {
+            progressBar.setProgress(progress);
+            percentText.setText(progress + "%");
+        });
+    }
+
+    private void navigateToResult() {
+        handler.postDelayed(() -> {
+            Intent intent = createResultIntent();
+            startActivity(intent);
+            finish();
+        }, NAVIGATION_DELAY_MS);
+    }
+
+    private Intent createResultIntent() {
+        Intent intent = new Intent(this, ResultActivity.class);
+
+        intent.putExtra("user_id", userId);
+        intent.putExtra("isForMe", isForMe);
+        intent.putExtra("patientName", patientName);
+        intent.putExtra("patientAge", patientAge);
+        intent.putExtra("patientPhone", patientPhone);
+        intent.putExtra("patientGender", patientGender);
+        intent.putExtra("diagnosisLabel", diagnosisLabel);
+        intent.putExtra("confidence", confidence);
+
+        return intent;
+    }
+
     private void startMessageAnimation() {
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                if (progressStatus < 100) {
-                    // Fade out animation
-                    AlphaAnimation fadeOut = new AlphaAnimation(1.0f, 0.0f);
-                    fadeOut.setDuration(300);
-                    fadeOut.setAnimationListener(new Animation.AnimationListener() {
-                        @Override
-                        public void onAnimationStart(Animation animation) {}
-
-                        @Override
-                        public void onAnimationEnd(Animation animation) {
-                            // Change message
-                            currentMessageIndex = (currentMessageIndex + 1) % cheeringMessages.length;
-                            messageText.setText(cheeringMessages[currentMessageIndex]);
-
-                            // Fade in animation
-                            AlphaAnimation fadeIn = new AlphaAnimation(0.0f, 1.0f);
-                            fadeIn.setDuration(300);
-                            messageText.startAnimation(fadeIn);
-                        }
-
-                        @Override
-                        public void onAnimationRepeat(Animation animation) {}
-                    });
-                    messageText.startAnimation(fadeOut);
-
-                    // Schedule next message change
-                    handler.postDelayed(this, 1800);
+                if (progressStatus < PROGRESS_MAX) {
+                    animateMessageChange();
+                    handler.postDelayed(this, MESSAGE_DELAY_MS);
                 }
             }
-        }, 1800);
+        }, MESSAGE_DELAY_MS);
+    }
+
+    private void animateMessageChange() {
+        AlphaAnimation fadeOut = new AlphaAnimation(1.0f, 0.0f);
+        fadeOut.setDuration(FADE_DURATION_MS);
+        fadeOut.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {}
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                updateMessage();
+                fadeInMessage();
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {}
+        });
+        messageText.startAnimation(fadeOut);
+    }
+
+    private void updateMessage() {
+        currentMessageIndex = (currentMessageIndex + 1) % CHEERING_MESSAGES.length;
+        messageText.setText(CHEERING_MESSAGES[currentMessageIndex]);
+    }
+
+    private void fadeInMessage() {
+        AlphaAnimation fadeIn = new AlphaAnimation(0.0f, 1.0f);
+        fadeIn.setDuration(FADE_DURATION_MS);
+        messageText.startAnimation(fadeIn);
     }
 
     @Override
