@@ -10,6 +10,15 @@ import com.example.patholens.modules.NewsResponse;
 import com.example.patholens.modules.ProfileImageResponse;
 import com.example.patholens.modules.PatientRequest;
 import com.example.patholens.modules.PatientResponse;
+import com.example.patholens.modules.VerifyOtpResponse;
+import com.example.patholens.modules.SendOtpRequest;
+import com.example.patholens.modules.ResetPasswordResponse;
+import com.example.patholens.modules.OtpResponse;
+import com.example.patholens.modules.ResetPasswordRequest;
+import com.example.patholens.modules.VerifyOtpRequest;
+import com.example.patholens.modules.ChangePasswordResponse;
+import com.example.patholens.modules.ChangePasswordRequest;
+
 
 import okhttp3.MultipartBody;
 import okhttp3.ResponseBody;
@@ -28,43 +37,43 @@ import okhttp3.RequestBody;
 public interface ApiService {
 
     // Login endpoint
-    @POST("login")
+    @POST("v1/login")
     Call<LoginResponse> login(@Body LoginRequest loginRequest);
 
-    @POST("register")
+    @POST("v1/register")
     Call<AuthResponse> register(@Body RegisterRequest request);
 
-    @GET("user/{id}")
+    @GET("v1/user/{id}")
     Call<UserResponse> getUser(@Path("id") int userId, @Header("Authorization") String token);
 
-    @GET("me")
+    @GET("v1/me")
     Call<UserResponse> getAuthenticatedUser(@Header("Authorization") String token);
 
-    @PUT("user/{id}")
+    @PUT("v1/user/{id}")
     Call<UserResponse> updateUser(
             @Path("id") int userId,
             @Header("Authorization") String token,
             @Body UpdateUserRequest request
     );
 
-    @PUT("me")
+    @PUT("v1/me")
     Call<UserResponse> updateAuthenticatedUser(
             @Header("Authorization") String token,
             @Body UpdateUserRequest request
     );
 
-    @GET("me/image")
+    @GET("v1/me/image")
     Call<ProfileImageResponse> getProfileImage(@Header("Authorization") String token);
 
     @Multipart
-    @POST("me/image")
+    @POST("v1/me/image")
     Call<ProfileImageResponse> uploadProfileImage(
             @Header("Authorization") String token,
             @Part MultipartBody.Part image
     );
     // Store patient diagnosis with image
     @Multipart
-    @POST("patients")
+    @POST("v1/patients")
     Call<PatientResponse> storePatientWithImage(
             @Header("Authorization") String token,
             @Part("user_id") RequestBody userId,
@@ -78,32 +87,32 @@ public interface ApiService {
     );
 
     // Store patient diagnosis without image
-    @POST("patients")
+    @POST("v1/patients")
     Call<PatientResponse> storePatient(
             @Header("Authorization") String token,
             @Body PatientRequest request
     );
 
     // Get all patients
-    @GET("patients")
+    @GET("v1/patients")
     Call<PatientResponse> getAllPatients(@Header("Authorization") String token);
 
     // Get patient history for specific user
-    @GET("patients/user/{user_id}")
+    @GET("v1/patients/user/{user_id}")
     Call<PatientResponse> getUserPatientHistory(
             @Path("user_id") String userId,
             @Header("Authorization") String token
     );
 
     // Get specific patient record
-    @GET("patients/{id}")
+    @GET("v1/patients/{id}")
     Call<PatientResponse> getPatient(
             @Path("id") int patientId,
             @Header("Authorization") String token
     );
 
     // Update patient record
-    @PUT("patients/{id}")
+    @PUT("v1/patients/{id}")
     Call<PatientResponse> updatePatient(
             @Path("id") int patientId,
             @Header("Authorization") String token,
@@ -111,16 +120,36 @@ public interface ApiService {
     );
 
     // Delete patient record
-    @DELETE("patients/{id}")
+    @DELETE("v1/patients/{id}")
     Call<PatientResponse> deletePatient(
             @Path("id") int patientId,
             @Header("Authorization") String token
     );
 
+    // Add these methods to your existing ApiService interface
 
-    @DELETE("me/image")
+    @POST("password/forgot")
+    Call<OtpResponse> sendOtp(@Body SendOtpRequest request);
+
+    @POST("password/verify-otp")
+    Call<VerifyOtpResponse> verifyOtp(@Body VerifyOtpRequest request);
+
+    @POST("password/reset")
+    Call<ResetPasswordResponse> resetPassword(@Body ResetPasswordRequest request);
+
+    @POST("password/resend-otp")
+    Call<OtpResponse> resendOtp(@Body SendOtpRequest request);
+
+    @POST("v1/auth/change-password")
+    Call<ChangePasswordResponse> changePassword(
+            @Header("Authorization") String token,
+            @Body ChangePasswordRequest request
+    );
+
+
+    @DELETE("v1/me/image")
     Call<ProfileImageResponse> deleteProfileImage(@Header("Authorization") String token);
 
-    @GET("news")
+    @GET("v1/news")
     Call<NewsResponse> getNews();
 }
