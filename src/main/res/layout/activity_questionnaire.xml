@@ -3,8 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F5F5F5"
-    android:fillViewport="true">
+    android:fillViewport="true"
+    android:background="#FFFFFF">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -12,407 +12,378 @@
         android:orientation="vertical"
         android:padding="20dp">
 
+        <!-- Title -->
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Oral Lesion Intake Form"
+            android:text="Medical Questionnaire"
             android:textSize="24sp"
             android:textStyle="bold"
-            android:textColor="#333333"
-            android:layout_marginBottom="8dp"/>
+            android:textColor="#2C3E50"
+            android:layout_marginBottom="20dp"/>
 
+        <!-- Primary Concern -->
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Please provide detailed information about your oral lesion"
-            android:textSize="14sp"
-            android:textColor="#666666"
-            android:layout_marginBottom="24dp"/>
-
-        <!-- SECTION 1: Chief Complaint -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Chief Complaint (Required)"
-            android:textSize="18sp"
-            android:textColor="#2196F3"
-            android:textStyle="bold"
-            android:layout_marginBottom="12dp"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Describe your primary concern"
+            android:text="What are you experiencing?"
             android:textSize="16sp"
-            android:textColor="#333333"
             android:textStyle="bold"
-            android:layout_marginBottom="8dp"/>
+            android:textColor="#34495E"
+            android:layout_marginTop="10dp"/>
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp"
-            app:boxBackgroundMode="outline"
-            app:boxCornerRadiusTopStart="8dp"
-            app:boxCornerRadiusTopEnd="8dp"
-            app:boxCornerRadiusBottomStart="8dp"
-            app:boxCornerRadiusBottomEnd="8dp">
+            android:layout_marginTop="8dp"
+            app:boxBackgroundMode="outline">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etPrimaryConcern"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="e.g., 'Sore spot on my tongue for 2 weeks', 'White patch on my cheek'"
-                android:inputType="textMultiLine"
+                android:hint="Describe your symptoms"
                 android:minLines="3"
-                android:gravity="top"/>
+                android:gravity="top|start"/>
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- SECTION 2: Oral Lesions -->
+        <!-- Location Section -->
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Oral Lesions (Required)"
-            android:textSize="18sp"
-            android:textColor="#2196F3"
+            android:text="Where are the sores/blisters located in your mouth?"
+            android:textSize="16sp"
             android:textStyle="bold"
-            android:layout_marginBottom="12dp"/>
+            android:textColor="#34495E"
+            android:layout_marginTop="20dp"/>
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Affected Oral Locations"
-            android:textSize="16sp"
-            android:textColor="#333333"
-            android:textStyle="bold"
-            android:layout_marginBottom="8dp"/>
+            android:text="Select all that apply:"
+            android:textSize="14sp"
+            android:textColor="#7F8C8D"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="10dp"/>
+
+        <CheckBox
+            android:id="@+id/cbInnerCheeks"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Inner cheeks"
+            android:textSize="15sp"
+            android:padding="8dp"/>
+
+        <CheckBox
+            android:id="@+id/cbRoofOfMouth"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Roof of the mouth"
+            android:textSize="15sp"
+            android:padding="8dp"/>
+
+        <CheckBox
+            android:id="@+id/cbInsideOfLips"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Inside of the lips"
+            android:textSize="15sp"
+            android:padding="8dp"/>
 
         <CheckBox
             android:id="@+id/cbTongue"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Tongue"
-            android:layout_marginBottom="4dp"/>
+            android:textSize="15sp"
+            android:padding="8dp"/>
 
         <CheckBox
-            android:id="@+id/cbGingiva"
-            android:layout_width="wrap_content"
+            android:id="@+id/cbGums"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Gingiva"
-            android:layout_marginBottom="4dp"/>
+            android:text="Gums"
+            android:textSize="15sp"
+            android:padding="8dp"/>
 
         <CheckBox
             android:id="@+id/cbFloorOfMouth"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Floor of Mouth"
-            android:layout_marginBottom="4dp"/>
+            android:text="Floor of the mouth"
+            android:textSize="15sp"
+            android:padding="8dp"/>
 
-        <CheckBox
-            android:id="@+id/cbBuccalMucosa"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Buccal Mucosa"
-            android:layout_marginBottom="4dp"/>
-
-        <CheckBox
-            android:id="@+id/cbPalate"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Palate"
-            android:layout_marginBottom="4dp"/>
-
-        <CheckBox
-            android:id="@+id/cbLips"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Lips"
-            android:layout_marginBottom="16dp"/>
-
+        <!-- Other Areas Section -->
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="When did you first notice the lesion(s)? (Optional)"
+            android:text="Other Areas"
             android:textSize="16sp"
-            android:textColor="#333333"
             android:textStyle="bold"
-            android:layout_marginBottom="8dp"/>
+            android:textColor="#34495E"
+            android:layout_marginTop="20dp"/>
+
+        <CheckBox
+            android:id="@+id/cbOtherAreas"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Sores are present in other areas (skin, scalp, etc.)"
+            android:textSize="15sp"
+            android:padding="8dp"/>
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            app:boxBackgroundMode="outline"
-            app:boxCornerRadiusTopStart="8dp"
-            app:boxCornerRadiusTopEnd="8dp"
-            app:boxCornerRadiusBottomStart="8dp"
-            app:boxCornerRadiusBottomEnd="8dp">
+            android:layout_marginTop="8dp"
+            app:boxBackgroundMode="outline">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etLesionOnsetDate"
+                android:id="@+id/etOtherAreasSpecify"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Pick a date (e.g., 01/15/2024)"
-                android:inputType="date"/>
+                android:hint="Specify where (e.g., face, arms, back)"
+                android:enabled="false"/>
         </com.google.android.material.textfield.TextInputLayout>
 
+        <!-- When Started -->
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Current Pain Level (0-10) (Required)"
+            android:text="When did the sores first appear?"
             android:textSize="16sp"
-            android:textColor="#333333"
             android:textStyle="bold"
-            android:layout_marginBottom="8dp"/>
-
-        <TextView
-            android:id="@+id/tvPainLevel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Pain Level: 5"
-            android:textSize="14sp"
-            android:textColor="#666666"
-            android:layout_marginBottom="8dp"/>
-
-        <SeekBar
-            android:id="@+id/seekBarPainLevel"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:max="10"
-            android:progress="5"
-            android:layout_marginBottom="24dp"/>
-
-        <!-- SECTION 3: Associated Symptoms -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Associated Symptoms (Optional)"
-            android:textSize="18sp"
-            android:textColor="#2196F3"
-            android:textStyle="bold"
-            android:layout_marginBottom="12dp"/>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginBottom="8dp">
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Experiencing bleeding?"
-                android:textSize="16sp"
-                android:textColor="#333333"/>
-
-            <Switch
-                android:id="@+id/switchBleeding"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginBottom="8dp">
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Experiencing swelling?"
-                android:textSize="16sp"
-                android:textColor="#333333"/>
-
-            <Switch
-                android:id="@+id/switchSwelling"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginBottom="12dp">
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Do you have a fever?"
-                android:textSize="16sp"
-                android:textColor="#333333"/>
-
-            <Switch
-                android:id="@+id/switchFever"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-        </LinearLayout>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Other relevant symptoms"
-            android:textSize="16sp"
-            android:textColor="#333333"
-            android:textStyle="bold"
-            android:layout_marginBottom="8dp"/>
+            android:textColor="#34495E"
+            android:layout_marginTop="20dp"/>
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp"
-            app:boxBackgroundMode="outline"
-            app:boxCornerRadiusTopStart="8dp"
-            app:boxCornerRadiusTopEnd="8dp"
-            app:boxCornerRadiusBottomStart="8dp"
-            app:boxCornerRadiusBottomEnd="8dp">
+            android:layout_marginTop="8dp"
+            app:boxBackgroundMode="outline">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etWhenStarted"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="e.g., 2 weeks ago, last month"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Symptoms Section -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Symptoms"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="#34495E"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="10dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="8dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Painful sores"
+                android:textSize="15sp"/>
+
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/switchPainfulSores"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="8dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Bleeding easily"
+                android:textSize="15sp"/>
+
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/switchBleedingEasily"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="8dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Difficulty eating"
+                android:textSize="15sp"/>
+
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/switchDifficultyEating"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="8dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Difficulty swallowing"
+                android:textSize="15sp"/>
+
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/switchDifficultySwallowing"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            app:boxBackgroundMode="outline">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etOtherSymptoms"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="e.g., 'Difficulty swallowing', 'Numbness', 'Changes in taste'"
-                android:inputType="textMultiLine"
+                android:hint="Other symptoms (if any)"
                 android:minLines="2"
-                android:gravity="top"/>
+                android:gravity="top|start"/>
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- SECTION 4: Medical History -->
+        <!-- Nikolsky's Sign -->
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Medical History (Optional)"
-            android:textSize="18sp"
-            android:textColor="#2196F3"
-            android:textStyle="bold"
-            android:layout_marginBottom="12dp"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Known medical conditions"
+            android:text="Nikolsky's Sign (if mentioned in medical report)"
             android:textSize="16sp"
-            android:textColor="#333333"
             android:textStyle="bold"
-            android:layout_marginBottom="8dp"/>
+            android:textColor="#34495E"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="10dp"/>
+
+        <RadioGroup
+            android:id="@+id/rgNikolskySign"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <RadioButton
+                android:id="@+id/rbNikolskyNotMentioned"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Not mentioned / Don't know"
+                android:textSize="15sp"
+                android:padding="8dp"
+                android:checked="true"/>
+
+            <RadioButton
+                android:id="@+id/rbNikolskyPositive"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Positive"
+                android:textSize="15sp"
+                android:padding="8dp"/>
+
+            <RadioButton
+                android:id="@+id/rbNikolskyNegative"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Negative"
+                android:textSize="15sp"
+                android:padding="8dp"/>
+        </RadioGroup>
+
+        <!-- Medical History Section -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Medical History"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="#34495E"
+            android:layout_marginTop="20dp"/>
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            app:boxBackgroundMode="outline"
-            app:boxCornerRadiusTopStart="8dp"
-            app:boxCornerRadiusTopEnd="8dp"
-            app:boxCornerRadiusBottomStart="8dp"
-            app:boxCornerRadiusBottomEnd="8dp">
+            android:layout_marginTop="12dp"
+            app:boxBackgroundMode="outline">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etMedicalConditions"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="e.g., 'Diabetes', 'Hypertension', 'Autoimmune disease'"
-                android:inputType="textMultiLine"
+                android:hint="Any medical conditions? (e.g., diabetes, hypertension)"
                 android:minLines="2"
-                android:gravity="top"/>
+                android:gravity="top|start"/>
         </com.google.android.material.textfield.TextInputLayout>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Current medications"
-            android:textSize="16sp"
-            android:textColor="#333333"
-            android:textStyle="bold"
-            android:layout_marginBottom="8dp"/>
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            app:boxBackgroundMode="outline"
-            app:boxCornerRadiusTopStart="8dp"
-            app:boxCornerRadiusTopEnd="8dp"
-            app:boxCornerRadiusBottomStart="8dp"
-            app:boxCornerRadiusBottomEnd="8dp">
+            android:layout_marginTop="12dp"
+            app:boxBackgroundMode="outline">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etCurrentMedications"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="List all prescription and over-the-counter medications"
-                android:inputType="textMultiLine"
+                android:hint="Current medications (if any)"
                 android:minLines="2"
-                android:gravity="top"/>
+                android:gravity="top|start"/>
         </com.google.android.material.textfield.TextInputLayout>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Known allergies"
-            android:textSize="16sp"
-            android:textColor="#333333"
-            android:textStyle="bold"
-            android:layout_marginBottom="8dp"/>
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            app:boxBackgroundMode="outline"
-            app:boxCornerRadiusTopStart="8dp"
-            app:boxCornerRadiusTopEnd="8dp"
-            app:boxCornerRadiusBottomStart="8dp"
-            app:boxCornerRadiusBottomEnd="8dp">
+            android:layout_marginTop="12dp"
+            app:boxBackgroundMode="outline">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etAllergies"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="e.g., 'Penicillin', 'Latex', 'Specific foods'"
-                android:inputType="textMultiLine"
+                android:hint="Any allergies? (medications, food, etc.)"
                 android:minLines="2"
-                android:gravity="top"/>
+                android:gravity="top|start"/>
         </com.google.android.material.textfield.TextInputLayout>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginBottom="24dp">
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Smoking history?"
-                android:textSize="16sp"
-                android:textColor="#333333"
-                android:textStyle="bold"/>
-
-            <Switch
-                android:id="@+id/switchSmokingHistory"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-        </LinearLayout>
-
+        <!-- Next Button -->
         <Button
             android:id="@+id/btnNext"
             android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:text="Continue to Image Upload"
+            android:layout_height="60dp"
+            android:layout_marginTop="30dp"
+            android:layout_marginBottom="20dp"
+            android:text="Next: Upload Images"
             android:textSize="16sp"
             android:textStyle="bold"
-            android:backgroundTint="#2196F3"
-            android:layout_marginTop="16dp"/>
+            android:backgroundTint="#3498DB"/>
 
     </LinearLayout>
-
 </ScrollView>

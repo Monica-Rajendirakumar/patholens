@@ -34,7 +34,7 @@ import okhttp3.Response;
 public class DiagnosingActivity extends AppCompatActivity {
 
     private static final String TAG = "DiagnosingActivity";
-    private static final String API_URL = "http://192.168.0.110:8000/api/v1/classify-image";
+    private static final String API_URL = "http://10.111.90.57:8000/api/v1/classify-image";
     private static final int API_TIMEOUT_SECONDS = 30;
     private static final int PROGRESS_TARGET = 90;
     private static final int PROGRESS_MAX = 100;

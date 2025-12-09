@@ -146,6 +146,10 @@ public interface ApiService {
             @Body ChangePasswordRequest request
     );
 
+    @Multipart
+    @POST("v1/classify-image")
+    Call<ResponseBody> classifyImage(@Part MultipartBody.Part image);
+
 
     @DELETE("v1/me/image")
     Call<ProfileImageResponse> deleteProfileImage(@Header("Authorization") String token);

@@ -106,7 +106,7 @@ public class ImageUploadActivity extends AppCompatActivity {
                 "• Misdiagnosis\n" +
                 "• Wrong treatment recommendations\n" +
                 "• Rejection of your submission\n\n" +
-                "Ensure the image is a clear microscopic view taken through a microscope.";
+                "Ensure the image is a clear  view taken through a good quality camera.";
     }
 
     private void setupListeners() {
@@ -114,7 +114,7 @@ public class ImageUploadActivity extends AppCompatActivity {
 
         btnSubmit.setOnClickListener(v -> {
             if (!imageSelected) {
-                Toast.makeText(this, "Please upload a microscopic image first",
+                Toast.makeText(this, "Please upload a image first",
                         Toast.LENGTH_SHORT).show();
                 return;
             }
