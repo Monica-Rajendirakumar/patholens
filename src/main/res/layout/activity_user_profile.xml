@@ -268,15 +268,6 @@
                             android:textSize="16sp"
                             android:textStyle="bold"/>
                     </LinearLayout>
-
-                    <TextView
-                        android:id="@+id/tvConfidence"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="93% confidence"
-                        android:textColor="#4CAF50"
-                        android:textSize="14sp"
-                        android:textStyle="bold"/>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 

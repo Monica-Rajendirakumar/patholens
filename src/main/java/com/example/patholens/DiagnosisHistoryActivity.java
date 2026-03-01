@@ -28,24 +28,23 @@ import retrofit2.Response;
 
 public class DiagnosisHistoryActivity extends AppCompatActivity {
 
-    private static final String TAG = "DiagnosisHistory";
+    private static final String TAG           = "DiagnosisHistory";
     private static final String STATUS_SUCCESS = "success";
-    private static final String GENDER_FEMALE = "female";
+    private static final String GENDER_FEMALE  = "female";
 
-    private ImageView btnBack;
-    private LinearLayout diagnosisContainer;
-    private ProgressBar progressBar;
-    private TextView tvEmptyState;
+    private ImageView      btnBack;
+    private LinearLayout   diagnosisContainer;
+    private ProgressBar    progressBar;
+    private TextView       tvEmptyState;
     private NestedScrollView scrollView;
 
-    private PrefsManager prefsManager;
-    private List<Patient> patientList;
+    private PrefsManager   prefsManager;
+    private List<Patient>  patientList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_diagnosis_history);
-
         initializeViews();
         prefsManager = new PrefsManager(this);
         setupClickListeners();
@@ -53,12 +52,11 @@ public class DiagnosisHistoryActivity extends AppCompatActivity {
     }
 
     private void initializeViews() {
-        btnBack = findViewById(R.id.btnBack);
+        btnBack            = findViewById(R.id.btnBack);
         diagnosisContainer = findViewById(R.id.diagnosisContainer);
-        scrollView = findViewById(R.id.scrollView);
-        progressBar = findViewById(R.id.progressBar);
-        tvEmptyState = findViewById(R.id.tvEmptyState);
-
+        scrollView         = findViewById(R.id.scrollView);
+        progressBar        = findViewById(R.id.progressBar);
+        tvEmptyState       = findViewById(R.id.tvEmptyState);
         tvEmptyState.setGravity(Gravity.CENTER);
     }
 
@@ -66,16 +64,16 @@ public class DiagnosisHistoryActivity extends AppCompatActivity {
         btnBack.setOnClickListener(v -> finish());
     }
 
-    private void loadDiagnosisHistory() {
-        if (!validateUserSession()) {
-            return;
-        }
+    // ─────────────────────────────────────────────────────────
+    // Network
+    // ─────────────────────────────────────────────────────────
 
+    private void loadDiagnosisHistory() {
+        if (!validateUserSession()) return;
         showLoading(true);
 
         String userId = String.valueOf(prefsManager.getUserId());
-        String token = prefsManager.getBearerToken();
-
+        String token  = prefsManager.getBearerToken();
         Log.d(TAG, "Fetching history for user ID: " + userId);
 
         RetrofitClient.getInstance()
@@ -85,14 +83,11 @@ public class DiagnosisHistoryActivity extends AppCompatActivity {
     }
 
     private boolean validateUserSession() {
-        String token = prefsManager.getBearerToken();
-
-        if (token == null) {
+        if (prefsManager.getBearerToken() == null) {
             Toast.makeText(this, "Please login again", Toast.LENGTH_SHORT).show();
             finish();
             return false;
         }
-
         return true;
     }
 
@@ -103,7 +98,6 @@ public class DiagnosisHistoryActivity extends AppCompatActivity {
                 showLoading(false);
                 handleHistoryResponse(response);
             }
-
             @Override
             public void onFailure(Call<PatientResponse> call, Throwable t) {
                 showLoading(false);
@@ -114,8 +108,7 @@ public class DiagnosisHistoryActivity extends AppCompatActivity {
 
     private void handleHistoryResponse(Response<PatientResponse> response) {
         if (response.isSuccessful() && response.body() != null) {
-            PatientResponse patientResponse = response.body();
-            processPatientResponse(patientResponse);
+            processPatientResponse(response.body());
         } else {
             Log.e(TAG, "Response failed: " + response.code());
             Toast.makeText(this, "Failed to load history", Toast.LENGTH_SHORT).show();
@@ -126,18 +119,17 @@ public class DiagnosisHistoryActivity extends AppCompatActivity {
     private void processPatientResponse(PatientResponse patientResponse) {
         if (STATUS_SUCCESS.equalsIgnoreCase(patientResponse.getStatus())) {
             patientList = patientResponse.getData();
-
             if (patientList != null && !patientList.isEmpty()) {
-                Log.d(TAG, "Loaded " + patientList.size() + " patient records");
+                Log.d(TAG, "Loaded " + patientList.size() + " records");
                 displayDiagnosisHistory();
             } else {
-                Log.d(TAG, "No patient records found");
+                Log.d(TAG, "No records found");
                 showEmptyState();
             }
         } else {
-            String errorMsg = patientResponse.getMessage() != null ?
-                    patientResponse.getMessage() : "Failed to load history";
-            Toast.makeText(this, errorMsg, Toast.LENGTH_SHORT).show();
+            String msg = patientResponse.getMessage() != null
+                    ? patientResponse.getMessage() : "Failed to load history";
+            Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
             showEmptyState();
         }
     }
@@ -148,97 +140,108 @@ public class DiagnosisHistoryActivity extends AppCompatActivity {
         showEmptyState();
     }
 
+    // ─────────────────────────────────────────────────────────
+    // Rendering
+    // ─────────────────────────────────────────────────────────
+
     private void displayDiagnosisHistory() {
         diagnosisContainer.removeAllViews();
-
         for (int i = 0; i < patientList.size(); i++) {
-            Patient patient = patientList.get(i);
-            View cardView = createDiagnosisCard(patient, i + 1);
-            diagnosisContainer.addView(cardView);
+            diagnosisContainer.addView(createDiagnosisCard(patientList.get(i), i + 1));
         }
-
-        showHistoryContent();
-    }
-
-    private void showHistoryContent() {
         tvEmptyState.setVisibility(View.GONE);
         scrollView.setVisibility(View.VISIBLE);
     }
 
     private View createDiagnosisCard(Patient patient, int position) {
-        View cardView = LayoutInflater.from(this)
+        View card = LayoutInflater.from(this)
                 .inflate(R.layout.item_diagnosis_card, diagnosisContainer, false);
-
-        populateCardViews(cardView, patient, position);
-        setupCardClickListener(cardView, patient);
-
-        return cardView;
+        populateCardViews(card, patient, position);
+        card.findViewById(R.id.btnReport).setOnClickListener(v -> openReport(patient));
+        return card;
     }
 
-    private void populateCardViews(View cardView, Patient patient, int position) {
-        TextView tvDiagnosisTitle = cardView.findViewById(R.id.tvDiagnosisTitle);
-        TextView tvDate = cardView.findViewById(R.id.tvDate);
-        TextView tvPatientName = cardView.findViewById(R.id.tvPatientName);
-        TextView tvAge = cardView.findViewById(R.id.tvAge);
-        TextView tvPemphigus = cardView.findViewById(R.id.tvPemphigus);
-        TextView tvConfidence = cardView.findViewById(R.id.tvConfidence);
-        ImageView ivGenderIcon = cardView.findViewById(R.id.ivGenderIcon);
+    private void populateCardViews(View card, Patient patient, int position) {
+        TextView tvDiagnosisTitle = card.findViewById(R.id.tvDiagnosisTitle);
+        TextView tvDate           = card.findViewById(R.id.tvDate);
+        TextView tvPatientName    = card.findViewById(R.id.tvPatientName);
+        TextView tvAge            = card.findViewById(R.id.tvAge);
+        TextView tvPemphigus      = card.findViewById(R.id.tvPemphigus);
+        TextView tvConfidence     = card.findViewById(R.id.tvConfidence);
+        ImageView ivGenderIcon    = card.findViewById(R.id.ivGenderIcon);
 
         tvDiagnosisTitle.setText("Diagnosis " + position);
         tvDate.setText(patient.getFormattedDate());
         tvPatientName.setText("Name: " + patient.getPatientName());
         tvAge.setText("Age: " + patient.getAge());
 
-        populateDiagnosisResult(tvPemphigus, tvConfidence, patient);
-        setGenderIcon(ivGenderIcon, patient.getGender());
-    }
-
-    private void populateDiagnosisResult(TextView tvPemphigus, TextView tvConfidence, Patient patient) {
-        boolean isPemphigus = patient.isPemphigus();
+        String resultLabel = patient.getResult();
+        boolean isPemphigus = false;
+        if (resultLabel != null) {
+            String lower = resultLabel.toLowerCase();
+            isPemphigus = lower.contains("pemphigus")
+                    && !lower.contains("no-pemphigus")
+                    && !lower.contains("no pemphigus")
+                    && !lower.contains("negative");
+        }
         tvPemphigus.setText("Pemphigus: " + (isPemphigus ? "Yes" : "No"));
-        tvConfidence.setText("Confidence: " + String.format("%.0f%%", patient.getConfidence()));
-    }
 
-    private void setGenderIcon(ImageView ivGenderIcon, String gender) {
-        int iconResource = GENDER_FEMALE.equalsIgnoreCase(gender) ?
-                R.drawable.ic_female :
-                R.drawable.ic_male;
-        ivGenderIcon.setImageResource(iconResource);
-    }
+        // confidence stored as decimal (e.g. 0.98) → multiply by 100
+        double rawConfidence = patient.getConfidence();
+        double confidencePercent = rawConfidence;
 
-    private void setupCardClickListener(View cardView, Patient patient) {
-        LinearLayout btnReport = cardView.findViewById(R.id.btnReport);
-        btnReport.setOnClickListener(v -> openReport(patient));
+        if (confidencePercent == 0) {
+            tvConfidence.setText("Confidence: Unable to classify");
+        } else {
+            tvConfidence.setText("Confidence: " + String.format("%.0f%%", confidencePercent));
+        }
+
+        ivGenderIcon.setImageResource(
+                GENDER_FEMALE.equalsIgnoreCase(patient.getGender())
+                        ? R.drawable.ic_female
+                        : R.drawable.ic_male);
     }
 
     private void openReport(Patient patient) {
-        Intent intent = createReportIntent(patient);
+        Intent intent = new Intent(this, DiagnosisReportActivity.class);
+
+        // Confidence is already stored as whole number (e.g. 87), NO multiplication needed
+        int confidenceInt = (int) Math.round(patient.getConfidence());
+
+        // Derive isPemphigus from the result label to avoid "no-pemphigus" being treated as true
+        String resultLabel = patient.getResult(); // adjust getter name if different
+        boolean isPemphigus = false;
+        if (resultLabel != null) {
+            String lower = resultLabel.toLowerCase();
+            isPemphigus = lower.contains("pemphigus")
+                    && !lower.contains("no-pemphigus")
+                    && !lower.contains("no pemphigus")
+                    && !lower.contains("negative");
+        }
+
+        intent.putExtra("diagnosis_id",   "Diagnosis Report #" + patient.getId());
+        intent.putExtra("name",           patient.getPatientName());
+        intent.putExtra("age",            patient.getAge());
+        intent.putExtra("pemphigus",      isPemphigus);           // fixed
+        intent.putExtra("result",         resultLabel);           // pass raw label too
+        intent.putExtra("date",           patient.getFormattedDate());
+        intent.putExtra("confidence",     confidenceInt);         // fixed: no * 100
+        intent.putExtra("gender",         patient.getGender());
+        intent.putExtra("contact_number", patient.getContactNumber());
+        intent.putExtra("image_url",      patient.getDiagnosisingImage());
+
         startActivity(intent);
     }
 
-    private Intent createReportIntent(Patient patient) {
-        Intent intent = new Intent(this, DiagnosisReportActivity.class);
-
-        intent.putExtra("diagnosis_id", "Diagnosis Report #" + patient.getId());
-        intent.putExtra("name", patient.getPatientName());
-        intent.putExtra("age", patient.getAge());
-        intent.putExtra("pemphigus", patient.isPemphigus());
-        intent.putExtra("date", patient.getFormattedDate());
-        intent.putExtra("confidence", (int) patient.getConfidence());
-        intent.putExtra("gender", patient.getGender());
-        intent.putExtra("contact_number", patient.getContactNumber());
-        intent.putExtra("image_url", patient.getDiagnosisingImage());
-
-        return intent;
-    }
+    // ─────────────────────────────────────────────────────────
+    // UI state
+    // ─────────────────────────────────────────────────────────
 
     private void showLoading(boolean show) {
+        progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
         if (show) {
-            progressBar.setVisibility(View.VISIBLE);
             scrollView.setVisibility(View.GONE);
             tvEmptyState.setVisibility(View.GONE);
-        } else {
-            progressBar.setVisibility(View.GONE);
         }
     }
 

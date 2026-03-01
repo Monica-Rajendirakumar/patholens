@@ -100,9 +100,9 @@ public class ImageUploadActivity extends AppCompatActivity {
     }
 
     private String getImportantNoticeMessage() {
-        return "Please upload ONLY microscopic images of Pemphigus disease.\n\n" +
+        return "Please upload ONLY  images of Pemphigus disease.\n\n" +
                 "Uploading incorrect images (such as clinical photos, unrelated skin conditions, " +
-                "or non-microscopic images) may lead to:\n\n" +
+                ") may lead to:\n\n" +
                 "• Misdiagnosis\n" +
                 "• Wrong treatment recommendations\n" +
                 "• Rejection of your submission\n\n" +
@@ -149,7 +149,7 @@ public class ImageUploadActivity extends AppCompatActivity {
     private void showConfirmationDialog() {
         new AlertDialog.Builder(this)
                 .setTitle("Confirm Submission")
-                .setMessage("Are you sure this is a microscopic image of Pemphigus disease?\n\n" +
+                .setMessage("Are you sure this is right image?\n\n" +
                         "Submitting incorrect images may result in rejection.")
                 .setPositiveButton("Yes, Submit", (dialog, which) -> navigateToDiagnosing())
                 .setNegativeButton("Cancel", null)

@@ -135,7 +135,7 @@ public class ResultActivity extends AppCompatActivity {
     }
 
     private void displayDiagnosisResult() {
-        int confidencePercent = (int) (confidence * 100);
+        int confidencePercent = (int) confidence ;
         confidenceText.setText("Confidence: " + confidencePercent + "%");
 
         boolean isPemphigusDetected = isPemphigusPositive(diagnosisLabel);
@@ -186,6 +186,7 @@ public class ResultActivity extends AppCompatActivity {
         if (label == null) return false;
         String lowerLabel = label.toLowerCase();
         return lowerLabel.equals("normal") ||
+                lowerLabel.equals("no-pemphigus") ||      // add hyphen version
                 lowerLabel.equals("no pemphigus detected") ||
                 lowerLabel.equals("negative");
     }
@@ -194,7 +195,8 @@ public class ResultActivity extends AppCompatActivity {
         if (label == null) return false;
         String lowerLabel = label.toLowerCase();
         return lowerLabel.contains("pemphigus") &&
-                !lowerLabel.contains("no pemphigus") &&
+                !lowerLabel.contains("no-pemphigus") &&   // hyphen ✓
+                !lowerLabel.contains("no pemphigus") &&   // space ✓ (both cases)
                 !lowerLabel.contains("negative");
     }
 
@@ -260,12 +262,20 @@ public class ResultActivity extends AppCompatActivity {
     }
 
     private void uploadWithImage(MultipartBody.Part imagePart) {
-        RequestBody userIdBody = createTextBody(userId);
-        RequestBody nameBody = createTextBody(patientName);
-        RequestBody ageBody = createTextBody(patientAge);
-        RequestBody genderBody = createTextBody(patientGender.toLowerCase());
-        RequestBody phoneBody = createTextBody(patientPhone);
-        RequestBody resultBody = createTextBody(diagnosisLabel);
+        // Ensure all values have defaults
+        String safeUserId = (userId != null && !userId.isEmpty()) ? userId : String.valueOf(prefsManager.getUserId());
+        String safeName = (patientName != null && !patientName.isEmpty()) ? patientName : "Unknown";
+        String safeAge = (patientAge != null && !patientAge.isEmpty()) ? patientAge : "0";
+        String safeGender = (patientGender != null && !patientGender.isEmpty()) ? patientGender.toLowerCase() : "unknown";
+        String safePhone = (patientPhone != null && !patientPhone.isEmpty()) ? patientPhone : "N/A";
+        String safeDiagnosis = (diagnosisLabel != null && !diagnosisLabel.isEmpty()) ? diagnosisLabel : "unknown";
+
+        RequestBody userIdBody = createTextBody(safeUserId);
+        RequestBody nameBody = createTextBody(safeName);
+        RequestBody ageBody = createTextBody(safeAge);
+        RequestBody genderBody = createTextBody(safeGender);
+        RequestBody phoneBody = createTextBody(safePhone);
+        RequestBody resultBody = createTextBody(safeDiagnosis);
         RequestBody confidenceBody = createTextBody(String.valueOf(confidence));
 
         Call<PatientResponse> call = apiService.storePatientWithImage(
@@ -288,13 +298,30 @@ public class ResultActivity extends AppCompatActivity {
     }
 
     private void sendWithoutImage() {
+        // Ensure all values have defaults to prevent null pointer exceptions
+        String safeUserId = (userId != null && !userId.isEmpty()) ? userId : String.valueOf(prefsManager.getUserId());
+        String safeName = (patientName != null && !patientName.isEmpty()) ? patientName : "Unknown";
+        String safeAge = (patientAge != null && !patientAge.isEmpty()) ? patientAge : "0";
+        String safeGender = (patientGender != null && !patientGender.isEmpty()) ? patientGender.toLowerCase() : "unknown";
+        String safePhone = (patientPhone != null && !patientPhone.isEmpty()) ? patientPhone : "N/A";
+        String safeDiagnosis = (diagnosisLabel != null && !diagnosisLabel.isEmpty()) ? diagnosisLabel : "unknown";
+
+        Log.d(TAG, "Sending diagnosis to server:");
+        Log.d(TAG, "  UserId: " + safeUserId);
+        Log.d(TAG, "  Name: " + safeName);
+        Log.d(TAG, "  Age: " + safeAge);
+        Log.d(TAG, "  Gender: " + safeGender);
+        Log.d(TAG, "  Phone: " + safePhone);
+        Log.d(TAG, "  Diagnosis: " + safeDiagnosis);
+        Log.d(TAG, "  Confidence: " + confidence);
+
         PatientRequest request = new PatientRequest(
-                userId,
-                patientName,
-                patientAge,
-                patientGender.toLowerCase(),
-                patientPhone,
-                diagnosisLabel,
+                safeUserId,
+                safeName,
+                safeAge,
+                safeGender,
+                safePhone,
+                safeDiagnosis,
                 confidence
         );
 
@@ -398,6 +425,13 @@ public class ResultActivity extends AppCompatActivity {
 
     private void navigateToLoginAndClearStack() {
         Intent intent = new Intent(this, LoginActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+        finish();
+    }
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent(ResultActivity.this, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
         finish();

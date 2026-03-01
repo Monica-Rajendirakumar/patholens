@@ -188,78 +188,20 @@
                         </LinearLayout>
                     </androidx.cardview.widget.CardView>
 
-                    <!-- Section Header -->
-                    <LinearLayout
+                    <!-- Loading bar -->
+                    <ProgressBar
+                        android:id="@+id/summary_loading_bar"
+                        style="?android:attr/progressBarStyleHorizontal"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="16dp"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal">
+                        android:layout_height="3dp"
+                        android:indeterminate="true"
+                        android:indeterminateTint="#00D4B1"
+                        android:visibility="gone" />
 
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Latest Research"
-                            android:textColor="#212121"
-                            android:textSize="20sp"
-                            android:fontFamily="sans-serif-medium" />
-
-                        <TextView
-                            android:id="@+id/view_all_news"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="View All"
-                            android:textColor="#6200EE"
-                            android:textSize="14sp"
-                            android:fontFamily="sans-serif-medium" />
-                    </LinearLayout>
-
-                    <!-- ✅ REPLACE ALL NEWS CARDS WITH RECYCLERVIEW -->
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/news_recycler_view"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="16dp"
-                        android:nestedScrollingEnabled="false" />
-
-                    <!-- Load More Button -->
-                    <androidx.cardview.widget.CardView
-                        android:id="@+id/load_more_card"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="24dp"
-                        android:foreground="?android:attr/selectableItemBackground"
-                        app:cardBackgroundColor="#6200EE"
-                        app:cardCornerRadius="12dp"
-                        app:cardElevation="4dp">
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:gravity="center"
-                            android:orientation="horizontal"
-                            android:padding="16dp">
-
-                            <TextView
-                                android:id="@+id/load_more_btn"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:fontFamily="sans-serif-medium"
-                                android:text="EXPLORE MORE"
-                                android:textColor="#FFFFFF"
-                                android:textSize="14sp"
-                                android:letterSpacing="0.05" />
-
-                            <ImageView
-                                android:id="@+id/load_more_icon"
-                                android:layout_width="20dp"
-                                android:layout_height="20dp"
-                                android:layout_marginStart="8dp"
-                                android:src="@android:drawable/ic_menu_rotate"
-                                android:tint="#FFFFFF" />
-                        </LinearLayout>
-                    </androidx.cardview.widget.CardView>
+                    <!-- Diagnostics Summary Card -->
+                    <include
+                        android:id="@+id/diagnosis_summary_card"
+                        layout="@layout/item_diagnosis_summary" />
 
                 </LinearLayout>
             </ScrollView>
@@ -270,7 +212,7 @@
     <!-- Navigation Drawer -->
     <com.google.android.material.navigation.NavigationView
         android:id="@+id/side_navigation"
-        android:layout_width="280dp"
+        android:layout_width="200dp"
         android:layout_height="match_parent"
         android:layout_gravity="start"
         android:background="#FFFFFF"

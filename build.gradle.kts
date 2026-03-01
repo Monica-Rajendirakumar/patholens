@@ -88,8 +88,8 @@ dependencies {
     androidTestImplementation ("androidx.test.espresso:espresso-core:3.5.1")
     implementation ("com.squareup.okhttp3:okhttp:4.11.0")
     implementation ("com.squareup.okhttp3:logging-interceptor:4.11.0")
-
-    // Glide for image loading (you already have this)
+    implementation ("org.tensorflow:tensorflow-lite:2.13.0")
+    implementation ("org.tensorflow:tensorflow-lite-support:0.4.4")
     implementation ("com.github.bumptech.glide:glide:4.15.1")
     annotationProcessor ("com.github.bumptech.glide:compiler:4.15.1")
 

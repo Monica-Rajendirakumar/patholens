@@ -26,7 +26,8 @@ public class EditProfileActivity extends AppCompatActivity {
     private static final String TAG = "EditProfileActivity";
     private static final String[] GENDER_OPTIONS = {"Gender", "Male", "Female", "Other"};
     private static final int MIN_AGE = 1;
-    private static final int MAX_AGE = 150;
+    private static final int MAX_AGE = 110;
+    private static final int PHONE_LENGTH = 10;
 
     private ImageView btnBack;
     private EditText etFirstName, etLastName, etAge, etEmail, etPhone;
@@ -180,19 +181,31 @@ public class EditProfileActivity extends AppCompatActivity {
         }
 
         if (!isValidAge(ageStr)) {
-            etAge.setError("Please enter a valid age");
+            etAge.setError("Hmm, that doesn't seem right. Age must be between 1 and 110");
             etAge.requestFocus();
             return false;
         }
 
+        if (email.isEmpty()) {
+            etEmail.setError("Email is required");
+            etEmail.requestFocus();
+            return false;
+        }
+
         if (!isValidEmail(email)) {
-            etEmail.setError("Valid email is required");
+            etEmail.setError("Please enter a valid email address (e.g. name@example.com)");
             etEmail.requestFocus();
             return false;
         }
 
         if (phone.isEmpty()) {
             etPhone.setError("Phone number is required");
+            etPhone.requestFocus();
+            return false;
+        }
+
+        if (!isValidPhone(phone)) {
+            etPhone.setError("Phone number must be exactly 10 digits");
             etPhone.requestFocus();
             return false;
         }
@@ -215,10 +228,12 @@ public class EditProfileActivity extends AppCompatActivity {
     }
 
     private boolean isValidEmail(String email) {
-        return !email.isEmpty() &&
-                android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
+        return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
     }
 
+    private boolean isValidPhone(String phone) {
+        return phone.matches("\\d{10}"); // exactly 10 digits, no spaces or special chars
+    }
     private void updateProfileOnServer(String fullName, String email, int age,
                                        String gender, String contact) {
         String token = prefsManager.getBearerToken();

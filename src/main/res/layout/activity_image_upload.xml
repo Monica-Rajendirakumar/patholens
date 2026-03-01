@@ -15,7 +15,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Upload Microscopic Image"
+            android:text="Upload Image"
             android:textSize="24sp"
             android:textStyle="bold"
             android:textColor="#333333"
@@ -24,7 +24,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Upload a clear microscopic image for diagnosis"
+            android:text="Upload a clear image for diagnosis"
             android:textSize="14sp"
             android:textColor="#666666"
             android:layout_marginBottom="24dp"/>
@@ -69,7 +69,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Only upload MICROSCOPIC images of Pemphigus disease"
+                    android:text="Only upload images of Pemphigus disease"
                     android:textSize="14sp"
                     android:textColor="#333333"
                     android:textStyle="bold"
@@ -78,7 +78,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="• Do NOT upload clinical photos\n• Do NOT upload images of other skin conditions\n• Ensure the image is taken through a microscope\n• Image should be clear and in focus"
+                    android:text="• Do NOT upload clinical photos\n• Do NOT upload images of other skin conditions\n• Ensure the image is taken through a \n• Image should be clear and in focus"
                     android:textSize="13sp"
                     android:textColor="#555555"
                     android:lineSpacingExtra="4dp"/>
@@ -86,7 +86,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Incorrect images will lead to misdiagnosis or rejection"
+                    android:text="Incorrect images will lead to or rejection"
                     android:textSize="12sp"
                     android:textColor="#D84315"
                     android:textStyle="italic"
@@ -185,7 +185,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="✓ Image must be a microscopic view\n✓ Image should be clear and well-lit\n✓ Avoid blurry or out-of-focus images\n✓ Supported formats: JPG, PNG\n✓ Maximum file size: 10MB"
+                    android:text="✓ Image must be a  view\n✓ Image should be clear and well-lit\n✓ Avoid blurry or out-of-focus images\n✓ Supported formats: JPG, PNG\n✓ Maximum file size: 10MB"
                     android:textSize="13sp"
                     android:textColor="#333333"
                     android:lineSpacingExtra="4dp"/>
@@ -206,7 +206,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="By submitting, you confirm that the uploaded image is a microscopic image of Pemphigus disease"
+            android:text="By submitting, you confirm that the uploaded image is a image of Pemphigus disease"
             android:textSize="11sp"
             android:textColor="#999999"
             android:gravity="center"

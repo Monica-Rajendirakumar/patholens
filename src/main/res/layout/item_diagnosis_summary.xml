@@ -1,0 +1,396 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="8dp"
+    android:layout_marginBottom="24dp"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="2dp"
+    app:cardBackgroundColor="#FFFFFF">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <!-- ── Header ── -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="4dp">
+
+            <View
+                android:layout_width="4dp"
+                android:layout_height="24dp"
+                android:background="@drawable/shape_accent_bar"
+                android:layout_marginEnd="10dp" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Your Diagnostics"
+                android:textColor="#212121"
+                android:textSize="18sp"
+                android:fontFamily="sans-serif-medium" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/shape_purple_pill"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp"
+                android:gravity="center">
+
+                <TextView
+                    android:id="@+id/tvTotalCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0"
+                    android:textColor="#FFFFFF"
+                    android:textSize="14sp"
+                    android:fontFamily="sans-serif-medium" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=" total"
+                    android:textColor="#E0D4FF"
+                    android:textSize="12sp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Overview of all diagnosis sessions"
+            android:textColor="#9E9E9E"
+            android:textSize="12sp"
+            android:layout_marginStart="14dp"
+            android:layout_marginBottom="20dp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#F0F0F0"
+            android:layout_marginBottom="20dp" />
+
+        <!-- ══ PEMPHIGUS DETECTED ══ -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/shape_stat_bg_red"
+            android:padding="16dp"
+            android:layout_marginBottom="12dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="10dp">
+
+                <LinearLayout
+                    android:layout_width="38dp"
+                    android:layout_height="38dp"
+                    android:background="@drawable/shape_circle_red"
+                    android:gravity="center"
+                    android:layout_marginEnd="12dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="P"
+                        android:textColor="#FFFFFF"
+                        android:textSize="16sp"
+                        android:fontFamily="sans-serif-medium" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Pemphigus Detected"
+                        android:textColor="#C62828"
+                        android:textSize="13sp"
+                        android:fontFamily="sans-serif-medium" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Positive cases"
+                        android:textColor="#EF9A9A"
+                        android:textSize="11sp" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvPemphigusCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0"
+                    android:textColor="#C62828"
+                    android:textSize="32sp"
+                    android:fontFamily="sans-serif-medium" />
+            </LinearLayout>
+
+            <ProgressBar
+                android:id="@+id/pbPemphigus"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="6dp"
+                android:progressTint="#E53935"
+                android:progressBackgroundTint="#FFCDD2"
+                android:max="100"
+                android:progress="0"
+                android:layout_marginBottom="10dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Avg. Confidence"
+                    android:textColor="#EF9A9A"
+                    android:textSize="12sp" />
+                <TextView
+                    android:id="@+id/tvPemphigusConfidence"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0%"
+                    android:textColor="#C62828"
+                    android:textSize="20sp"
+                    android:fontFamily="sans-serif-medium" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- ══ NON-PEMPHIGUS ══ -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/shape_stat_bg_green"
+            android:padding="16dp"
+            android:layout_marginBottom="12dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="10dp">
+
+                <LinearLayout
+                    android:layout_width="38dp"
+                    android:layout_height="38dp"
+                    android:background="@drawable/shape_circle_green"
+                    android:gravity="center"
+                    android:layout_marginEnd="12dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="N"
+                        android:textColor="#FFFFFF"
+                        android:textSize="16sp"
+                        android:fontFamily="sans-serif-medium" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Non-Pemphigus"
+                        android:textColor="#2E7D32"
+                        android:textSize="13sp"
+                        android:fontFamily="sans-serif-medium" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Negative cases"
+                        android:textColor="#A5D6A7"
+                        android:textSize="11sp" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvNonPemphigusCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0"
+                    android:textColor="#2E7D32"
+                    android:textSize="32sp"
+                    android:fontFamily="sans-serif-medium" />
+            </LinearLayout>
+
+            <ProgressBar
+                android:id="@+id/pbNonPemphigus"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="6dp"
+                android:progressTint="#43A047"
+                android:progressBackgroundTint="#C8E6C9"
+                android:max="100"
+                android:progress="0"
+                android:layout_marginBottom="10dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Avg. Confidence"
+                    android:textColor="#A5D6A7"
+                    android:textSize="12sp" />
+                <TextView
+                    android:id="@+id/tvNonPemphigusConfidence"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0%"
+                    android:textColor="#2E7D32"
+                    android:textSize="20sp"
+                    android:fontFamily="sans-serif-medium" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- ══ UNABLE TO CLASSIFY ══ -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/shape_stat_bg_amber"
+            android:padding="16dp"
+            android:layout_marginBottom="20dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="10dp">
+
+                <LinearLayout
+                    android:layout_width="38dp"
+                    android:layout_height="38dp"
+                    android:background="@drawable/shape_circle_amber"
+                    android:gravity="center"
+                    android:layout_marginEnd="12dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="?"
+                        android:textColor="#FFFFFF"
+                        android:textSize="16sp"
+                        android:fontFamily="sans-serif-medium" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Unable to Classify"
+                        android:textColor="#E65100"
+                        android:textSize="13sp"
+                        android:fontFamily="sans-serif-medium" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Inconclusive results"
+                        android:textColor="#FFCC80"
+                        android:textSize="11sp" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvUnableCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0"
+                    android:textColor="#E65100"
+                    android:textSize="32sp"
+                    android:fontFamily="sans-serif-medium" />
+            </LinearLayout>
+
+            <ProgressBar
+                android:id="@+id/pbUnable"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="6dp"
+                android:progressTint="#FB8C00"
+                android:progressBackgroundTint="#FFE0B2"
+                android:max="100"
+                android:progress="0" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#F0F0F0"
+            android:layout_marginBottom="16dp" />
+
+        <!-- ── Overall Avg Confidence footer ── -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@drawable/shape_purple_footer"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingTop="14dp"
+            android:paddingBottom="14dp">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Overall Avg. Confidence"
+                    android:textColor="#6200EE"
+                    android:textSize="13sp"
+                    android:fontFamily="sans-serif-medium" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Across all classified diagnoses"
+                    android:textColor="#CE93D8"
+                    android:textSize="11sp" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvAvgConfidence"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0%"
+                android:textColor="#6200EE"
+                android:textSize="32sp"
+                android:fontFamily="sans-serif-medium" />
+        </LinearLayout>
+
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

@@ -21,6 +21,8 @@ import com.example.patholens.api.RetrofitClient;
 import com.example.patholens.modules.UserResponse;
 import com.example.patholens.utils.PrefsManager;
 import com.example.patholens.modules.ProfileImageResponse;
+import com.example.patholens.modules.Patient;
+import com.example.patholens.modules.PatientResponse;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import okhttp3.MediaType;
@@ -33,16 +35,18 @@ import retrofit2.Response;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.util.List;
 
 public class UserProfileActivity extends AppCompatActivity {
 
     private static final int EDIT_PROFILE_REQUEST = 100;
     private static final String TAG = "UserProfile";
+    private static final String STATUS_SUCCESS = "success";
 
     private CircleImageView profileImage;
     private ImageView btnBack, btnEditImage;
     private TextView tvFullName, tvAge, tvGender, tvContact;
-    private TextView tvDiagnoses, tvConfidence;
+    private TextView tvDiagnoses;
     private CardView btnTerms, btnPrivacy;
     private LinearLayout btnEdit;
 
@@ -55,8 +59,6 @@ public class UserProfileActivity extends AppCompatActivity {
     private String gender = "";
     private String contact = "";
     private String email = "";
-    private int diagnoses = 3;
-    private String confidence = "93%";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,6 +70,7 @@ public class UserProfileActivity extends AppCompatActivity {
         setupImagePicker();
         fetchUserProfile();
         fetchProfileImage();
+        fetchDiagnosisCount(); // ← NEW
         setupClickListeners();
     }
 
@@ -87,7 +90,7 @@ public class UserProfileActivity extends AppCompatActivity {
         tvGender = findViewById(R.id.tvGender);
         tvContact = findViewById(R.id.tvContact);
         tvDiagnoses = findViewById(R.id.tvDiagnoses);
-        tvConfidence = findViewById(R.id.tvConfidence);
+
 
         btnTerms = findViewById(R.id.btnTerms);
         btnPrivacy = findViewById(R.id.btnPrivacy);
@@ -186,9 +189,51 @@ public class UserProfileActivity extends AppCompatActivity {
         tvAge.setText(age > 0 ? String.valueOf(age) : "N/A");
         tvGender.setText(gender != null ? capitalizeFirst(gender) : "N/A");
         tvContact.setText(contact != null ? contact : "N/A");
-        tvDiagnoses.setText(String.valueOf(diagnoses));
-        tvConfidence.setText(confidence + " confidence");
     }
+
+    // ─────────────────────────────────────────────────────────
+    // Diagnosis Count
+    // ─────────────────────────────────────────────────────────
+
+    private void fetchDiagnosisCount() {
+        String token = prefsManager.getBearerToken();
+        if (token == null) {
+            updateDiagnosisUI(0);
+            return;
+        }
+
+        String userId = String.valueOf(prefsManager.getUserId());
+
+        apiService.getUserPatientHistory(userId, token).enqueue(new Callback<PatientResponse>() {
+            @Override
+            public void onResponse(Call<PatientResponse> call, Response<PatientResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    PatientResponse patientResponse = response.body();
+                    if (STATUS_SUCCESS.equalsIgnoreCase(patientResponse.getStatus())
+                            && patientResponse.getData() != null) {
+                        updateDiagnosisUI(patientResponse.getData().size());
+                    } else {
+                        updateDiagnosisUI(0);
+                    }
+                } else {
+                    updateDiagnosisUI(0);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<PatientResponse> call, Throwable t) {
+                updateDiagnosisUI(0);
+            }
+        });
+    }
+
+    private void updateDiagnosisUI(int count) {
+        tvDiagnoses.setText(String.valueOf(count));
+    }
+
+    // ─────────────────────────────────────────────────────────
+    // Profile Image
+    // ─────────────────────────────────────────────────────────
 
     private void fetchProfileImage() {
         String token = prefsManager.getBearerToken();
@@ -225,6 +270,10 @@ public class UserProfileActivity extends AppCompatActivity {
             }
         }
     }
+
+    // ─────────────────────────────────────────────────────────
+    // Image Upload
+    // ─────────────────────────────────────────────────────────
 
     private void uploadProfileImageToServer(Uri imageUri) {
         String token = prefsManager.getBearerToken();
@@ -298,22 +347,20 @@ public class UserProfileActivity extends AppCompatActivity {
         });
     }
 
+    // ─────────────────────────────────────────────────────────
+    // Helpers
+    // ─────────────────────────────────────────────────────────
+
     private String capitalizeFirst(String text) {
-        if (text == null || text.isEmpty()) {
-            return text;
-        }
+        if (text == null || text.isEmpty()) return text;
         return text.substring(0, 1).toUpperCase() + text.substring(1).toLowerCase();
     }
 
     private void setupClickListeners() {
         btnBack.setOnClickListener(v -> finish());
-
         btnEditImage.setOnClickListener(v -> openImagePicker());
-
         btnEdit.setOnClickListener(v -> openEditProfile());
-
         btnTerms.setOnClickListener(v -> openTermsActivity());
-
         btnPrivacy.setOnClickListener(v -> openPrivacyActivity());
     }
 
@@ -333,13 +380,11 @@ public class UserProfileActivity extends AppCompatActivity {
     }
 
     private void openTermsActivity() {
-        Intent intent = new Intent(this, TermsActivity.class);
-        startActivity(intent);
+        startActivity(new Intent(this, TermsActivity.class));
     }
 
     private void openPrivacyActivity() {
-        Intent intent = new Intent(this, PrivacyActivity.class);
-        startActivity(intent);
+        startActivity(new Intent(this, PrivacyActivity.class));
     }
 
     @Override
@@ -348,6 +393,7 @@ public class UserProfileActivity extends AppCompatActivity {
         if (requestCode == EDIT_PROFILE_REQUEST && resultCode == RESULT_OK) {
             fetchUserProfile();
             fetchProfileImage();
+            fetchDiagnosisCount(); // ← refresh count after edit too
             Toast.makeText(this, "Profile updated successfully", Toast.LENGTH_SHORT).show();
         }
     }
